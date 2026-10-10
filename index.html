@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafaf9">
+  <meta name="description" content="An interactive, illustrated guide to D4RT. Explore how one video becomes queryable geometry across space and time.">
+  <title>D4RT, illustrated — A moving world, one point at a time</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="scene.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 23 16 7l9 16Z"/><circle cx="7" cy="23" r="3"/><circle cx="16" cy="7" r="3"/><circle cx="25" cy="23" r="3"/></svg><strong>D4RT</strong><span>/ illustrated</span></a>
+  <nav aria-label="Main navigation"><a href="#query-lab">Explore</a><a href="#architecture">Understand</a><a href="#sources">Read the paper ↗</a></nav>
+</header>
+<div class="page-layout">
+<aside class="rail"><div class="rail-label">FIELD NOTES / 01</div><nav aria-label="Chapters"><a href="#overview" class="active"><span>01</span>The idea</a><a href="#query-lab"><span>02</span>The query lab</a><a href="#architecture"><span>03</span>Inside the model</a><a href="#recipes"><span>04</span>One interface</a><a href="#efficiency"><span>05</span>Less repeated work</a><a href="#understanding"><span>06</span>Check your intuition</a><a href="#sources"><span>07</span>Research notes</a></nav><p>An independent visual companion to the research.</p><div class="progress-track"><div id="reading-progress"></div></div></aside>
+<main id="main">
+<section id="overview" class="hero chapter">
+  <div class="eyebrow"><span class="live-dot"></span> A HANDS-ON RESEARCH EXPLAINER</div>
+  <h1>A moving world.<br><span>One point at a time.</span></h1>
+  <p class="lead">A video is flat. The world isn’t. <strong>D4RT</strong> turns video into a representation you can query across three dimensions and time.</p>
+  <div class="hero-actions"><a class="button dark" href="#query-lab">Explore the idea <span>↓</span></a><a class="text-link" href="https://d4rt-paper.github.io/" target="_blank" rel="noopener">Original research ↗</a></div>
+  <div class="hero-visual"><canvas id="hero-canvas" aria-label="Illustration of a moving sphere and its 3D trajectory">A point on a moving sphere traces a path through three-dimensional space.</canvas><div class="hero-caption"><span>SPACE × TIME</span><span>One identity. Many positions.</span></div><div class="hero-equation">(u, v, t<sub>src</sub>) <span>→</span> (x, y, z)<sub>t<sub>tgt</sub>, camera t<sub>cam</sub></sub></div></div>
+  <div class="intro-notes"><p><span>THE SHIFT</span>Build the scene representation once. Ask targeted questions many times.</p><p><span>THE NAME</span>Dynamic <strong>4D</strong> Reconstruction and Tracking. The fourth dimension is time.</p></div>
+</section>
+
+<section id="query-lab" class="chapter">
+  <div class="section-label">02 / THE QUERY LAB</div>
+  <h2>Three times. Three different jobs.</h2>
+  <p class="section-intro">Pick a point, move through time, then change the coordinate frame. Each control answers a different question. <a class="cite" href="https://d4rt-paper.github.io/#method" target="_blank" rel="noopener">Research ↗</a></p>
+  <div class="lab surface">
+    <div class="panel-top"><span class="caps">A SMALL WORLD YOU CAN EXPLORE</span><span class="badge">Geometry simulation</span></div>
+    <div class="lab-views">
+      <div class="view"><div class="view-title"><span>01 · Source image</span><span id="source-frame-label">FRAME 01</span></div><canvas id="source-canvas" aria-label="Synthetic source image. Use the point selector below as an alternative to clicking.">Use the point selector to choose the sphere, cube, or floor.</canvas><p>Click a visible dot to choose a surface point.</p></div>
+      <div class="view"><div class="view-title"><span>02 · The 3D answer</span><span id="target-frame-label">FRAME 07</span></div><canvas id="world-canvas" tabindex="0" aria-label="3D scene at target time. Drag, or use left and right arrow keys, to orbit the illustration.">The selected point is highlighted in the target scene.</canvas><p>Drag to orbit · arrow keys also work <button id="reset-orbit" class="inline-button" type="button">Reset view</button></p></div>
+    </div>
+    <div class="control-grid">
+      <label>Source time <span class="mono">t<sub>src</sub> = <output id="src-out">01</output></span><input id="src-time" type="range" min="0" max="11" value="0"><small>Where did you identify the point?</small></label>
+      <label>Target time <span class="mono">t<sub>tgt</sub> = <output id="tgt-out">07</output></span><input id="tgt-time" type="range" min="0" max="11" value="6"><small>When do you want its position?</small></label>
+      <label>Camera frame <span class="mono">t<sub>cam</sub> = <output id="cam-out">01</output></span><input id="cam-time" type="range" min="0" max="11" value="0"><small>Which camera defines x, y and z?</small></label>
+    </div>
+    <div class="lab-options"><label for="point-select">Choose a point</label><select id="point-select"><option value="sphere">Moving sphere</option><option value="cube">Cube corner</option><option value="floor">Fixed floor point</option></select><label class="check"><input type="checkbox" id="show-path" checked> Show trajectory</label><button id="play-time" class="button small" type="button" aria-pressed="false">▶ Play target time</button></div>
+    <div class="query-strip"><div><span class="caps">QUERY</span><code id="query-value">q = (0.30, 0.40, 1, 7, 1)</code></div><span class="query-arrow">→</span><div><span class="caps">POINT IN CAMERA COORDINATES</span><code id="point-value">P = (−0.80, 0.40, 6.20)</code></div></div>
+    <p id="query-insight" class="insight" aria-live="polite">Move the target slider to follow the same point.</p>
+  </div>
+  <div class="try-this"><span>TRY THIS</span><p>Select <strong>Fixed floor point</strong>. Move only the camera slider. The point stays in place, but its reported coordinates change. A coordinate change is not necessarily object motion.</p></div>
+  <p class="footnote">Original synthetic scene, arbitrary units. Values come from explicit geometry, not D4RT predictions. All twelve frames belong to the same imagined clip; this is not a future-forecasting demo.</p>
+</section>
+
+<section id="architecture" class="chapter">
+  <div class="section-label">03 / INSIDE THE MODEL</div>
+  <h2>Understand once. Query repeatedly.</h2>
+  <p class="section-intro">Follow the information through the network. Select a stage to inspect its role.</p>
+  <div class="architecture surface">
+    <div class="pipeline" role="tablist" aria-label="Architecture stages">
+      <button role="tab" id="stage-tab-0" aria-selected="true" aria-controls="stage-panel" data-stage="0"><span class="stage-icon">▤</span><small>01</small>Video</button><span class="connector">→</span>
+      <button role="tab" id="stage-tab-1" aria-selected="false" aria-controls="stage-panel" tabindex="-1" data-stage="1"><span class="stage-icon">▦</span><small>02</small>Encoder</button><span class="connector">→</span>
+      <button role="tab" id="stage-tab-2" aria-selected="false" aria-controls="stage-panel" tabindex="-1" data-stage="2"><span class="stage-icon">⠿</span><small>03</small>Scene memory</button><span class="connector">→</span>
+      <button role="tab" id="stage-tab-3" aria-selected="false" aria-controls="stage-panel" tabindex="-1" data-stage="3"><span class="stage-icon">⌖</span><small>04</small>Decoder</button><span class="connector">→</span>
+      <button role="tab" id="stage-tab-4" aria-selected="false" aria-controls="stage-panel" tabindex="-1" data-stage="4"><span class="stage-icon">⊙</span><small>05</small>3D point</button>
+    </div>
+    <div id="stage-panel" class="stage-panel" role="tabpanel" aria-labelledby="stage-tab-0" tabindex="0"><div><span id="stage-kicker" class="caps">THE INPUT</span><h3 id="stage-title">A clip, not an isolated image.</h3><p id="stage-description"></p><code id="stage-code"></code></div><div id="stage-graphic" aria-hidden="true"></div></div>
+    <div class="panel-bottom">One shared scene representation · independent point queries <a class="cite" href="https://arxiv.org/html/2512.08924v1#S2.SS2" target="_blank" rel="noopener">Architecture, §2.2 ↗</a></div>
+  </div>
+  <details><summary>Does “independent queries” mean the model ignores the rest of the video?</summary><p>No. Each query can read the shared scene representation. Independence is between decoder queries, not between the input video frames. Think of several readers consulting the same notebook.</p></details>
+</section>
+
+<section id="recipes" class="chapter">
+  <div class="section-label">04 / ONE INTERFACE, DIFFERENT QUESTIONS</div>
+  <h2>Change the question.<br>Change the task.</h2>
+  <p class="section-intro">The query settings determine what you recover. These recipes use the same point-position interface.</p>
+  <div class="recipes surface"><div class="recipe-tabs" role="tablist" aria-label="Query recipes"><button role="tab" aria-selected="true" aria-controls="recipe-panel" id="recipe-tab-track" data-recipe="track">Point tracking</button><button role="tab" aria-selected="false" aria-controls="recipe-panel" id="recipe-tab-cloud" tabindex="-1" data-recipe="cloud">Point cloud</button><button role="tab" aria-selected="false" aria-controls="recipe-panel" id="recipe-tab-depth" tabindex="-1" data-recipe="depth">Depth</button><button role="tab" aria-selected="false" aria-controls="recipe-panel" id="recipe-tab-pose" tabindex="-1" data-recipe="pose">Camera pose</button></div>
+  <div class="recipe-body" id="recipe-panel" role="tabpanel" aria-labelledby="recipe-tab-track" tabindex="0"><div><span id="recipe-kicker" class="caps"></span><h3 id="recipe-title"></h3><p id="recipe-description"></p><div id="recipe-settings"></div><button id="try-recipe" class="button small" type="button">Try a related query ↑</button></div><svg id="recipe-svg" viewBox="0 0 330 240" role="img" aria-label="Illustration of the selected query recipe"></svg></div>
+  <div class="panel-bottom">Task formulas follow the paper’s query interface. <a class="cite" href="https://arxiv.org/html/2512.08924v1#S2.SS1" target="_blank" rel="noopener">Method, §2.1 ↗</a></div></div>
+</section>
+
+<section id="efficiency" class="chapter">
+  <div class="section-label">05 / LESS REPEATED WORK</div>
+  <h2>Don’t rediscover the same track.</h2>
+  <p class="section-intro">An occupancy grid records which visible pixels a decoded track already covers. Start the next track from an unvisited pixel. <a class="cite" href="https://arxiv.org/html/2512.08924v1#S2.SS3" target="_blank" rel="noopener">Algorithm 1 ↗</a></p>
+  <div class="occupancy surface"><div class="panel-top"><span class="caps">8 POINTS · 12 FRAMES · NO OCCLUSION</span><span class="badge">Toy example</span></div><div class="occupancy-body"><div><div class="grid-axis">TIME →</div><div id="occupancy-grid" aria-label="96 sample locations; filled cells have already been covered by a track"></div><div class="grid-key"><span><i class="empty-dot"></i>Unvisited</span><span><i></i>Covered by a track</span></div></div><div class="occupancy-stat"><span class="caps">COVERED SAMPLES</span><strong id="covered-count">0<span> / 96</span></strong><span id="track-count">0 tracks decoded</span><button id="next-track" type="button" class="button dark">Trace the next point →</button><button id="reset-tracks" type="button" class="inline-button">Start again</button></div></div>
+  <div class="comparison"><div><small>Every pixel starts a track</small><strong>1,152 <span>point queries</span></strong><p>96 source pixels × 12 target times</p></div><div><small>Reuse complete tracks</small><strong>96 <span>point queries at completion</span></strong><p>8 distinct tracks × 12 target times</p></div></div></div>
+  <p class="footnote">The 12× reduction belongs to this perfect toy example, not a benchmark. Occlusion, tracking errors and newly visible surfaces change real coverage.</p>
+</section>
+
+<section id="understanding" class="chapter">
+  <div class="section-label">06 / CHECK YOUR INTUITION</div><h2>What changed: the world or the ruler?</h2>
+  <div class="quiz surface"><p class="quiz-question">A statue is stationary. You keep its source point and target time fixed, but select a different camera frame. Must its output coordinates stay the same?</p><div class="quiz-options"><button class="button" type="button" data-answer="yes">Yes, because it didn’t move</button><button class="button" type="button" data-answer="no">No, the coordinate system changed</button></div><p id="quiz-feedback" aria-live="polite">Choose an answer to reveal the explanation.</p></div>
+  <div class="notes-grid"><div><h3>A useful distinction</h3><p><strong>Reconstruction</strong> describes what is in a scene. <strong>Tracking</strong> links the same physical point across time. A sequence of unrelated 3D snapshots does not automatically supply those links.</p></div><div><h3>Read predictions as predictions</h3><p>A location inferred behind an obstacle is not a new camera observation. This distinction matters whenever an application acts on uncertain geometry.</p></div></div>
+</section>
+
+<section id="sources" class="chapter research-notes">
+  <div class="section-label">07 / RESEARCH NOTES</div><h2>Go to the source.</h2>
+  <p class="paper-title">Efficiently Reconstructing Dynamic Scenes One D4RT at a Time</p><p class="authors">Chuhan Zhang · Guillaume Le Moing · Skanda Koppula · Ignacio Rocco · Liliane Momeni · Junyu Xie · Shuyang Sun · Rahul Sukthankar · Joëlle K. Barral · Raia Hadsell · Zoubin Ghahramani · Andrew Zisserman · Junlin Zhang · Mehdi S. M. Sajjadi</p><p class="footnote">Google DeepMind · University College London · University of Oxford<br>Preprint: December 2025 · CVPR 2026</p>
+  <div class="source-links"><a href="https://openaccess.thecvf.com/content/CVPR2026/html/Zhang_Efficiently_Reconstructing_Dynamic_Scenes_One_D4RT_at_a_Time_CVPR_2026_paper.html" target="_blank" rel="noopener"><span>01</span>Conference paper <span>↗</span></a><a href="https://d4rt-paper.github.io/" target="_blank" rel="noopener"><span>02</span>Authors’ project & real reconstructions <span>↗</span></a><a href="https://arxiv.org/html/2512.08924v1" target="_blank" rel="noopener"><span>03</span>Technical method & equations <span>↗</span></a><a href="https://deepmind.google/blog/d4rt-teaching-ai-to-see-the-world-in-four-dimensions/" target="_blank" rel="noopener"><span>04</span>DeepMind introduction <span>↗</span></a></div>
+  <details><summary>About this illustrated companion</summary><p>Made for exploration and explanation. The diagrams, geometry simulations and exercises are original teaching materials. This website does not run the D4RT model and is not affiliated with the paper’s authors. Consult the linked paper for experiments, training details and limitations.</p><p>Source checked October 10, 2026. No analytics, accounts, external fonts or model downloads.</p></details>
+</section>
+<footer><a class="brand" href="#"><strong>D4RT</strong><span>/ illustrated</span></a><a href="https://github.com/htansetiawan/d4rt-illustrated">View source ↗</a><span>Made to be understood.</span></footer>
+</main></div>
+<noscript><div class="noscript">The text is available without JavaScript. Enable JavaScript to use the interactive diagrams.</div></noscript>
+</body></html>
