@@ -31,18 +31,6 @@
   ['pointerup','pointercancel','lostpointercapture'].forEach(type=>$('world-canvas').addEventListener(type,()=>{drag=null;}));
   $('world-canvas').addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();state.yaw+=e.key==='ArrowLeft'?-.15:.15;update();}});
   $('reset-orbit').addEventListener('click',()=>{state.yaw=.65;update();});
-  const stages=[
-    ['THE INPUT','A clip, not an isolated image.','The input is an RGB video. Across its frames, both the objects and the camera may move.','V : T × H × W × 3'],
-    ['THE ENCODER','Connect evidence across frames.','A vision transformer mixes within-frame and across-frame attention. It turns the clip into shared features.','F = E(V)'],
-    ['THE REPRESENTATION','A common notebook for the scene.','The global scene representation stays fixed while queries are decoded. The notebook metaphor is illustrative; these are learned continuous features.','F : N × C'],
-    ['THE DECODER','Ask about one physical point.','A query combines position, three time indices and local appearance. Cross-attention reads the scene features; decoder queries do not attend to each other.','q + local RGB patch → cross-attend to F'],
-    ['THE OUTPUT','A position in the chosen coordinates.','The main output is a 3D point. The model also learns auxiliary quantities such as visibility.','P = D(q, F) ∈ ℝ³']
-  ];
-  function graphic(stage){let parts='';if(stage===0){for(let i=0;i<4;i++)parts+=`<rect x="${35+i*22}" y="${70-i*14}" width="100" height="62" rx="4" fill="#fafaf8" stroke="#a8afa1"/><circle cx="${65+i*30}" cy="${100-i*14}" r="9" fill="#919d8c"/>`;}else if(stage===4){parts='<path d="M45 110H205M115 140V20M65 145 160 45" stroke="#d2d6ca"/><circle cx="145" cy="65" r="9" fill="#7f8e77"/><circle cx="145" cy="65" r="16" fill="none" stroke="#c5cebf"/><path d="M145 65V110H115" fill="none" stroke="#a9b69f" stroke-dasharray="3 4"/>';}else{for(let i=0;i<35;i++){const x=37+(i%7)*23,y=25+Math.floor(i/7)*23;const opacity=.25+((i*13+stage*7)%11)/16;parts+=`<rect x="${x}" y="${y}" width="15" height="15" rx="2" fill="#768a70" opacity="${opacity}"/>`;}if(stage===3)parts+='<circle cx="233" cy="75" r="10" fill="#4e6249"/><path d="M220 75 75 40M220 75 140 60M220 75 95 100" stroke="#b1bda8" fill="none" stroke-dasharray="3 3"/>';}
-    return `<svg viewBox="0 0 270 160">${parts}</svg>`;
-  }
-  function setStage(i){document.querySelectorAll('[data-stage]').forEach(b=>{const on=Number(b.dataset.stage)===i;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;});$('stage-panel').setAttribute('aria-labelledby',`stage-tab-${i}`);const a=stages[i];['stage-kicker','stage-title','stage-description','stage-code'].forEach((id,j)=>$(id).textContent=a[j]);$('stage-graphic').innerHTML=graphic(i);}
-  document.querySelectorAll('[data-stage]').forEach(b=>b.addEventListener('click',()=>setStage(Number(b.dataset.stage))));
   const recipes={
     track:{kicker:'ONE IDENTITY, MANY TIMES',title:'Follow the same point.',description:'Keep the source point fixed and sweep target time. Keeping the reference camera fixed makes a shared-coordinate trajectory.',settings:[['source','one (u, v, t_src)'],['target','sweep 1 … T'],['camera','hold one reference']]},
     cloud:{kicker:'MANY POINTS, ONE MOMENT',title:'Assemble a 3D snapshot.',description:'Sample source pixels and query a common target time and camera frame. Each returned position joins the point cloud.',settings:[['source','many source pixels'],['target','one selected time'],['camera','one reference']]},
@@ -64,5 +52,5 @@
   const sections=[...document.querySelectorAll('.chapter')];let queued=false;
   function progress(){queued=false;const max=document.documentElement.scrollHeight-innerHeight;$('reading-progress').style.width=`${max?100*scrollY/max:0}%`;let active=sections[0];sections.forEach(s=>{if(s.getBoundingClientRect().top<innerHeight*.35)active=s;});document.querySelectorAll('.rail nav a').forEach(a=>{const on=a.hash===`#${active.id}`;a.classList.toggle('active',on);if(on)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});}
   addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(progress);}},{passive:true});
-  setStage(0);setRecipe('track');occupancy();update();progress();
+  setRecipe('track');occupancy();update();progress();
 })();
