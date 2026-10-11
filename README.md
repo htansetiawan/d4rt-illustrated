@@ -6,6 +6,10 @@ Live: https://htansetiawan.github.io/d4rt-illustrated/
 
 ## Explore
 
+Edition 07 adds [a guided anatomy tour](https://htansetiawan.github.io/d4rt-illustrated/anatomy-tour.html), now the homepage's primary action. Six linked stages follow the same computation from video to tubelets, encoder, point query, decoder and learning. Each contains a diagram, tensor ledger, pseudocode and source boundary. A domain selector distinguishes D4RT local/global attention from Genie's causal temporal sublayer and composed spatial–temporal reachability.
+
+The tour also includes an actual **189-parameter differentiable teaching network**: 16 RGB tubelets, one self-attention layer, one cross-attention layer, and two coordinate queries. Browser-native reverse-mode autodiff propagates an MSE gradient through both paths; controls train the network or freeze its encoder. It omits most full transformer components and fits two targets from one synthetic clip. It is neither D4RT inference nor an implementation or performance claim. The loss and parameter updates are computed, not canned animations. Source: `tour.js`, `tour.css`, `anatomy-tour.html`.
+
 Edition 06 starts with a focused model workbench: actual tubelet RGB values → a computed six-channel illustrative projection; an expanded encoder block with normalization, Q/K/V, multi-head attention, MLP and residual routes; and a geometric label workshop with independently controlled source, target and camera times. The latter derives query and target values from a synthetic moving point and camera, including occlusion and missing-label controls. A composed attention-route comparison shows how Genie's spatial and temporal sublayers pass information indirectly. A scrubber exposes the reported training learning-rate schedule.
 
 - An illustrated cutaway for every execution step, including RGB grouping, patch projection, local/global encoder wiring, decoder Q/K/V paths, loss normalization and gradients through both branches.
@@ -66,6 +70,8 @@ Open `index.html` directly, or run `python3 -m http.server 8000` here. GitHub Pa
 - [DeepMind introduction](https://deepmind.google/blog/d4rt-teaching-ai-to-see-the-world-in-four-dimensions/)
 
 ## Validation
+
+Edition 07: `python3 tests/check_tour.py` checks all six stages, token address 6,143, local/global/causal/composed attention domains, keyboard navigation, deep links, deterministic resets, frozen-encoder invariance, and finite-difference agreement for gradients in all four parameter groups. Twenty teaching SGD steps reduce MSE from 0.33505 to 0.04138; this is only a two-query fit, not a model benchmark. Responsive checks cover 390, 768 and 1440 pixels, SVG text bounds and browser exceptions. Set `D4RT_TOUR_URL` for a hosted check.
 
 Edition 06: headless Chrome checks at 390, 768 and 1440 CSS pixels verify pixel addresses through the last tubelet, computed-feature invariance when only the scalar inspector moves, linked tubelet controls, encoder domains, composed Genie routes, source/target/camera coordinate invariants, occlusion versus missing labels, backward paths, learning-rate endpoints, keyboard tabs, SVG bounds, internal links and page overflow. The earlier attention/gradient/execution checks also pass. Desktop and mobile diagrams were visually reviewed.
 
