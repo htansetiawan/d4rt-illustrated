@@ -64,7 +64,7 @@
       activation: 'For M queries, build M query features. Changing camera time changes the requested coordinates, not the physical identity of the point.',
       training: 'The paper samples 2,048 queries per clip. Thirty percent are sampled near boundaries; a separate 40% branch sets target time equal to camera time.',
       inference: 'Queries are chosen for the task: vary target time for a track, or query an image grid for a depth map.',
-      link: '#A1', detail: 'reference.html#model-lifetime'
+      link: '#A1', detail: '#decoder'
     },
     decoder: {
       title: 'Eight cross-attention layers read the shared scene.', shape: 'queries [B,M,d] × scene [B,N,C] → [B,M,d]',
@@ -74,7 +74,7 @@
       activation: 'M controls decoding work independently of the encoder input. Independent predictions still share F and all model weights.',
       training: 'Gradients flow both through the query branch and through K,V into F. Sparse queries can therefore train the whole video encoder.',
       inference: 'Split a large query set into batches while reusing F. This architecture has no query-to-query state to carry between batches.',
-      link: '#S2.SS2', detail: 'reference.html#decoder'
+      link: '#S2.SS2', detail: '#decoder'
     },
     heads: {
       title: 'One query produces 13 output channels.', shape: '[B,M,d] → [B,M,13]',

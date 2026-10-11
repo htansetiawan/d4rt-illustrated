@@ -4,10 +4,12 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Start with the anatomy — edition 10
+## Start with the anatomy — edition 11
 
-The homepage now follows a video's lifetime directly. The older, larger workbench remains at [reference.html](https://htansetiawan.github.io/d4rt-illustrated/reference.html); previously published workbench fragment links are forwarded there when needed.
+The homepage now leads with the reported architecture, then follows tubelets → encoder → decoder → geometric supervision. Small executable networks are placed afterward as optional computation labs. The older, larger workbench remains at [reference.html](https://htansetiawan.github.io/d4rt-illustrated/reference.html); previously published workbench fragment links are forwarded there when needed.
 
+- **Connected geometry and training:** source, target and camera controls compute point trajectories and world-to-camera targets. An inline decoder schematic shows both input streams, query embeddings, cross-attention and the 13 output channels. The loss workshop independently normalizes prediction/label depths and exposes signed-log L1, confidence, missing labels, scale invariance and analytic XYZ derivatives. Predictions are deliberately separate fixed teaching values, not D4RT outputs.
+- **Exploded tubelets:** two separated frame planes and their common patch address follow the original RGB inspector. Pixel grouping is distinguished from temporal attention.
 - **One clip, one computed lifetime:** edit an RGB pixel and trace changes through tubelet projection, local attention, global attention, an independent query decoder and the loss. The displayed values come from one executable network. Change a query without changing the scene bank; freeze the encoder and inspect its zero parameter update.
 - **Clickable full architecture:** inspect both RGB input paths, frame-local/global encoder operations, the shared feature bank, independent decoder queries and all 13 output channels. Switch training/inference to distinguish learned parameters, activations, cached features and gradient flow.
 - **Attention cost calculator:** change clip length and query count to see local, global and decoder score counts; compare Genie-style factorized routing on the same explicitly hypothetical token lattice.
@@ -28,8 +30,12 @@ Training losses use available labels. Occlusion does not necessarily make a synt
 
 Genie means **Genie: Generative Interactive Environments (2024)**. Its ST-transformer is not assumed to use D4RT's two-frame tubelet size.
 
+The geometry workshop uses arbitrary units and zero-based times. Its isolated objective averages coordinate-summed L1 over labeled points with a shared confidence, and excludes unlabeled points from its depth means. These explicit teaching conventions do not claim to recover unspecified paper reduction/masking details. The output gradient includes dependence on the shared predicted mean depth, verified for all nine coordinates by independent finite differences.
+
 ## Files
 
+- `geometry-lab.js`, `geometry-lab.css`: connected physical-query and supervision workshops, decoder anatomy, tubelet-volume diagram.
+- `tests/check_geometry.py`: independent geometry, normalization and derivative checks; source/target/camera invariants; no label inputs to predictions; scale invariance; masking; responsive layouts.
 - `lifetime.js`, `lifetime.css`: connected video-to-loss inspector, using the same autodiff model as the training miniature in `tour.js`.
 - `atlas.js`, `atlas.css`: connected architecture inspector and attention shape calculator.
 - `index.html`, `deep-dive.js`, `deep-dive.css`: the anatomy-first homepage, raw-pixel inspector and computed encoder block.
@@ -49,6 +55,7 @@ Buildless HTML, CSS and JavaScript. Open `index.html`, or run `python3 -m http.s
 Browser tests require Python Playwright and Chrome. Set `CHROME_PATH` if needed. `D4RT_DEEP_URL`, `D4RT_TOUR_URL` and `D4RT_CHECK_URL` override their respective target URLs. Example:
 
 ```sh
+python3 tests/check_geometry.py
 python3 tests/check_deep_dive.py
 D4RT_TOUR_URL=file:///absolute/path/index.html python3 tests/check_tour.py
 python3 tests/check_workbench.py
@@ -66,3 +73,5 @@ Tests cover 390, 768 and 1440 pixel widths. Screenshots are written to temporary
 - [Genie ST-transformer and tokenizer](https://arxiv.org/html/2402.15391v1#S2)
 
 Research checked October 11, 2026. Credit remains with the paper's authors; no author affiliation is implied.
+
+Edition 11 verification: geometry, architecture, deep-dive and lifetime suites pass at 390, 768 and 1440 pixels; new desktop/mobile diagrams visually reviewed. No browser exceptions or page-level horizontal overflow.
