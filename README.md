@@ -4,6 +4,14 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
+## Open the whole model — edition 14
+
+The homepage now starts with a connected, inspectable model diagram. Both RGB branches remain visible: tubelets → video ViT → scene memory, and source patch/coordinates/times → query → cross-attention. Select any of seven components for its tensor shapes, computation and numerical lab. A gradient toggle reverses the flow and explains which parameters learn.
+
+The weight-lifetime strip distinguishes VideoMAE V2 pretraining, end-to-end D4RT geometry training, and fixed-weight inference. The 40-layer encoder is explicitly not presented as 40 local/global pairs. Unspecified residual/normalization wiring remains unspecified.
+
+New files: `model-map.js`, `model-map.css`, `tests/check_model_map.py`. The nine-stage video walkthrough and prior computation labs remain accessible below.
+
 ## Start with the video lifetime — edition 13
 
 The homepage now follows **one persistent video region through nine large, sequential diagrams**. Its full 6,144-address lattice makes frame-local, global and Genie-style causal connectivity inspectable at the reported video-token count. Scrub or play the synthetic clip, trace both patches into a tubelet, then follow the continuous projection, encoder, query branch, decoder and supervised update.
@@ -92,3 +100,5 @@ Edition 11 verification: geometry, architecture, deep-dive and lifetime suites p
 Edition 12 verification: cutaway, architecture, deep-dive and geometric-training suites pass at 390, 768 and 1440 pixels. Checks independently enumerate all 48 selected-token/mask combinations, verify the last tubelet index (6,143), preserve training/inference controls, and check SVG label bounds and selected-token contrast. Desktop/mobile diagrams visually reviewed; no browser exceptions or page-level horizontal overflow.
 
 Edition 13 verification: the guided-page suite passes 73 independently enumerated attention masks, final tubelet pixel/address checks, query controls, training/inference switching, animation stop, legacy deep-link forwarding and SVG bounds at 390/768/1440 pixels. The retained cutaway suite also passes. New tubelet, encoder and training diagrams were visually reviewed; no browser exceptions or page-level horizontal overflow. Wide diagrams scroll inside their panels on narrow screens.
+
+Edition 14 verification: seven anatomy components, forward/backward controls, keyboard activation, local lab anchors and layouts pass at 390/768/1440 pixels. The existing pipeline suite also passes all 73 attention-mask checks and its pixel, query and navigation contracts. Desktop/mobile anatomy screenshots reviewed; no browser exceptions or page-level horizontal overflow.
