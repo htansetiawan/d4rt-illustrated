@@ -6,6 +6,8 @@ Live: https://htansetiawan.github.io/d4rt-illustrated/
 
 ## Explore
 
+Edition 06 starts with a focused model workbench: actual tubelet RGB values → a computed six-channel illustrative projection; an expanded encoder block with normalization, Q/K/V, multi-head attention, MLP and residual routes; and a geometric label workshop with independently controlled source, target and camera times. The latter derives query and target values from a synthetic moving point and camera, including occlusion and missing-label controls. A composed attention-route comparison shows how Genie's spatial and temporal sublayers pass information indirectly. A scrubber exposes the reported training learning-rate schedule.
+
 - An illustrated cutaway for every execution step, including RGB grouping, patch projection, local/global encoder wiring, decoder Q/K/V paths, loss normalization and gradients through both branches.
 
 - A connected execution trace: tensor shapes, encoder and decoder paths, gradient flow, weight updates, and inference cache reuse.
@@ -30,6 +32,8 @@ All simulations are original teaching illustrations, **not D4RT inference or ben
 
 ## Evidence boundaries
 
+The workbench computes an original six-feature linear projection with explicit deterministic weights and RGB normalization; these are not D4RT parameters or preprocessing claims. Its transformer cutaway uses the standard pre-normalization ViT template, with D4RT's unspecified block details kept symbolic. The label workshop uses a known synthetic trajectory, translated/yawed cameras and a ray-tested occluder. Its supervision-only coordinates never become forward network inputs. Linear learning-rate warmup is an illustrative interpolation; the paper specifies warmup duration and peak.
+
 The reported model uses a 40-layer ViT-g encoder (1 B parameters), 2 × 16 × 16 patches, and an 8-layer cross-attention decoder (144 M parameters). Its training configuration uses 48 frames at 256 × 256, 2,048 sampled queries, and 500k AdamW steps. These are sourced from §4; the complete diagram is in Appendix A, Figure 7. Feature widths and head counts are left symbolic rather than inferred from a similarly named backbone.
 
 Token counts, attention-score counts and the confidence minimum are derived arithmetic. Metadata tokens are excluded from score estimates, which are not memory or timing benchmarks. The confidence demo isolates `c * error - 0.2 * log(c)` and explores `(0, 1]` without asserting the head activation. The paper's appendix repeats a confidence coefficient/term; the website does not invent a corrected full loss.
@@ -37,6 +41,8 @@ Token counts, attention-score counts and the confidence minimum are derived arit
 Genie refers to **Genie: Generative Interactive Environments (2024)**, not later Genie versions. Its factorized causal temporal attention is presented separately from D4RT's full-clip global attention.
 
 ## Files
+
+- `workbench.js` / `workbench.css`: projection, encoder block, composed attention routes, geometric label factory, and optimizer schedule.
 
 - `index.html`: all content, research links and accessible control markup.
 - `cutaway.js` / `cutaway.css`: operation-level diagrams synchronized with the execution trace and tubelet crops.
@@ -60,6 +66,10 @@ Open `index.html` directly, or run `python3 -m http.server 8000` here. GitHub Pa
 - [DeepMind introduction](https://deepmind.google/blog/d4rt-teaching-ai-to-see-the-world-in-four-dimensions/)
 
 ## Validation
+
+Edition 06: headless Chrome checks at 390, 768 and 1440 CSS pixels verify pixel addresses through the last tubelet, computed-feature invariance when only the scalar inspector moves, linked tubelet controls, encoder domains, composed Genie routes, source/target/camera coordinate invariants, occlusion versus missing labels, backward paths, learning-rate endpoints, keyboard tabs, SVG bounds, internal links and page overflow. The earlier attention/gradient/execution checks also pass. Desktop and mobile diagrams were visually reviewed.
+
+Run the workbench checks with `python3 tests/check_workbench.py` after installing Playwright's Python package and Chrome/Chromium. Set `CHROME_PATH` for a nonstandard browser location and `D4RT_CHECK_URL` to check a hosted version. Screenshots go to a temporary directory.
 
 Edition 05 adds synchronized operation cutaways and a direct encoder overview. Headless Chrome checks pass at 390, 768 and 1440 CSS pixels: all training/inference operations, tubelet image updates, Q/K/V labels, separate target/prediction normalization, gradient routes, disabled training controls at inference, SVG text bounds, and page overflow. Existing numerical and execution tests also pass. Desktop and mobile diagrams were visually inspected.
 
