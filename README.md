@@ -4,6 +4,14 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
+## Trace the tensors — edition 15
+
+The nine-stage homepage now carries an attached tensor notebook: shapes, selected tubelet addresses, softmax axes, and per-head attention score counts. Change the decoder query count (1, 2,048, or 65,536) to see which dimensions grow while the encoded clip stays the same. Training retains the paper's 2,048-query setting and explains how shared features and mean-depth normalization connect query losses.
+
+Start directly at [tubelets](https://htansetiawan.github.io/d4rt-illustrated/#walk-tubelet), [encoder self-attention](https://htansetiawan.github.io/d4rt-illustrated/#walk-local), [cross-attention](https://htansetiawan.github.io/d4rt-illustrated/#walk-decoder), or [training](https://htansetiawan.github.io/d4rt-illustrated/#walk-train). Every operation now has a shareable link.
+
+The shape notebook uses arithmetic, not model inference. C, D, head counts and detailed metadata routing remain unspecified; attention counts exclude metadata and do not imply that a full score matrix is allocated. `tensor-trace.js` and `tests/check_tensor_trace.py` implement and verify this addition.
+
 ## Open the whole model — edition 14
 
 The homepage now starts with a connected, inspectable model diagram. Both RGB branches remain visible: tubelets → video ViT → scene memory, and source patch/coordinates/times → query → cross-attention. Select any of seven components for its tensor shapes, computation and numerical lab. A gradient toggle reverses the flow and explains which parameters learn.
@@ -102,3 +110,5 @@ Edition 12 verification: cutaway, architecture, deep-dive and geometric-training
 Edition 13 verification: the guided-page suite passes 73 independently enumerated attention masks, final tubelet pixel/address checks, query controls, training/inference switching, animation stop, legacy deep-link forwarding and SVG bounds at 390/768/1440 pixels. The retained cutaway suite also passes. New tubelet, encoder and training diagrams were visually reviewed; no browser exceptions or page-level horizontal overflow. Wide diagrams scroll inside their panels on narrow screens.
 
 Edition 14 verification: seven anatomy components, forward/backward controls, keyboard activation, local lab anchors and layouts pass at 390/768/1440 pixels. The existing pipeline suite also passes all 73 attention-mask checks and its pixel, query and navigation contracts. Desktop/mobile anatomy screenshots reviewed; no browser exceptions or page-level horizontal overflow.
+
+Edition 15 verification: tensor-trace tests pass all nine direct links, three query counts, final tubelet addressing, fixed training-query count and same-fragment navigation at 390/768/1440 pixels. The retained pipeline suite passes 73 connectivity masks and all pixel/navigation checks. No browser exceptions. Desktop and mobile tensor views were visually reviewed.

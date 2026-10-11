@@ -67,15 +67,18 @@ function render(){const a=stages[state.stage],attention=state.stage===3||state.s
  if(attention){const n=readable().length;readout+=` ${n.toLocaleString('en-US')} readable addresses. `+(state.route==='genie'?'Same spatial address, present and earlier groups only.':state.route==='composed'?'Two-hop receptive field: all spatial addresses in present and earlier groups.':state.stage===3?'Spatial mixing within this group.':'Full observed clip, including later groups.');}
  if(state.stage===2)readout+=' First RGB values: '+raw().slice(0,6).join(', ')+'. No VQ lookup.';
  if(state.stage===5)readout=`Source identifies the point at frame ${state.src}. Locate it at frame ${state.tgt}. Express XYZ in the camera frame ${state.cam}. Scene memory F is unchanged.`;
- if(state.stage>=6)readout=state.stage===6?'Cross-attention scores per head: M × N. With 2,048 queries and 6,144 video tokens: 12,582,912 scores (excluding metadata).':state.stage===7?'3 + 2 + 1 + 3 + 3 + 1 = 13 output channels. Weights are '+(state.mode==='train'?'learned by the next stage.':'fixed; F can be reused for more queries.'):'Ground-truth labels enter the loss, not the model input. Missing labels disable only their corresponding supervision.';
+ const queryCount=Number($('trace-queries')?.value||2048);
+ if(state.stage>=6)readout=state.stage===6?`Cross-attention scores per head: M × N. With ${queryCount.toLocaleString('en-US')} queries and 6,144 video tokens: ${(queryCount*6144).toLocaleString('en-US')} scores (excluding metadata).`:state.stage===7?'3 + 2 + 1 + 3 + 3 + 1 = 13 output channels. Weights are '+(state.mode==='train'?'learned by the next stage.':'fixed; F can be reused for more queries.'):'Ground-truth labels enter the loss, not the model input. Missing labels disable only their corresponding supervision.';
  $('pipe-readout').textContent=readout;
  document.querySelectorAll('[data-pipe-stage]').forEach((b,i)=>{b.disabled=state.mode==='infer'&&i===8;if(i===state.stage)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
  $('pipe-prev').disabled=state.stage===0;$('pipe-next').disabled=state.stage===(state.mode==='infer'?7:8);
+ document.dispatchEvent(new CustomEvent('d4rt-stage',{detail:{...state,key:a[0]}}));
 }
 stages.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.dataset.pipeStage=a[0];b.innerHTML=`<small>${String(i+1).padStart(2,'0')}</small>${a[1]}`;b.addEventListener('click',()=>select(i));$('pipe-tabs').append(b);});
 for(const key of ['pair','row','col','src','tgt','cam'])$('pipe-'+key).addEventListener('input',e=>{stop();state[key]=Number(e.target.value);render();});
 $('pipe-mode').addEventListener('change',e=>{state.mode=e.target.value;select(state.stage);});
 $('pipe-route').addEventListener('change',e=>{state.route=e.target.value;render();});
+document.addEventListener('d4rt-query-count',render);
 $('pipe-next').addEventListener('click',()=>select(state.stage+1));$('pipe-prev').addEventListener('click',()=>select(state.stage-1));
 $('pipe-play').addEventListener('click',()=>{if(timer)return stop();$('pipe-play').textContent='Pause clip';$('pipe-play').setAttribute('aria-pressed','true');timer=setInterval(()=>{state.pair=(state.pair+1)%24;render();},450);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
@@ -84,7 +87,20 @@ $('pipe-genie-jump').addEventListener('click',()=>{select(4);state.route='compos
 // Existing published deep links continue to open their original detailed experiments.
 const oldHashes=['model-atlas','tokenizer','encoder','decoder','training','genie','lifetime','tour','learning','sources','overview','execution','workbench','anatomy','microscope','query','geometry','attention','training-lab','model-lifetime','architecture','query-lab','recipes','efficiency','understanding','gradient-lab','attention-math','tubelet-volume'];
 function followLegacy(){if(oldHashes.includes(location.hash.slice(1)) || /^#stage-[0-5]$/.test(location.hash))location.replace('anatomy.html'+location.hash);}
-window.addEventListener('hashchange',followLegacy);followLegacy();
+function followStage(){
+ const index=stages.findIndex(s=>location.hash==='#walk-'+s[0]);
+ if(index<0)return;
+ if(index===8){state.mode='train';$('pipe-mode').value='train';}
+ select(index);
+ $('walkthrough').scrollIntoView({block:'start'});
+}
+window.addEventListener('hashchange',()=>{followLegacy();followStage();});followLegacy();
+document.addEventListener('click',e=>{
+ const link=e.target.closest('a[href^="#walk-"]');
+ // A repeated permalink has no hashchange event, but must still select its step.
+ if(link&&link.hash===location.hash){e.preventDefault();followStage();}
+});
 render();
-window.D4RTPipeline={snapshot:()=>({...state,index:(state.pair*16+state.row)*16+state.col,readable:readable(),raw:raw()}),pixel};
+window.D4RTPipeline={snapshot:()=>({...state,key:stages[state.stage][0],index:(state.pair*16+state.row)*16+state.col,readable:readable(),raw:raw()}),pixel};
+followStage();
 })();
