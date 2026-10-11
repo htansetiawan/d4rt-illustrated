@@ -6,6 +6,8 @@ Live: https://htansetiawan.github.io/d4rt-illustrated/
 
 ## Explore
 
+- A connected execution trace: tensor shapes, encoder and decoder paths, gradient flow, weight updates, and inference cache reuse.
+
 - An eight-stage video lifetime walkthrough, with training/inference modes and SVG export.
 - A tubelet picker over two actual synthetic RGB frames: 2 × 16 × 16 pixels → one continuous token.
 - A connected, exploded video-volume diagram and RGB pixel inspector, driven by that same tubelet selection.
@@ -35,6 +37,7 @@ Genie refers to **Genie: Generative Interactive Environments (2024)**, not later
 ## Files
 
 - `index.html`: all content, research links and accessible control markup.
+- `execution.js` / `execution.css`: keyboard-accessible computational walkthrough with linked tubelet addresses.
 - `anatomy.js` / `anatomy.css`: model, tokenization, attention and training interactives.
 - `microscope.js` / `microscope.css`: connected tubelet volume, computed attention and geometric-gradient experiments.
 - `scene.js` / `app.js`: synthetic geometry, task recipes and occupancy demo.
@@ -54,6 +57,8 @@ Open `index.html` directly, or run `python3 -m http.server 8000` here. GitHub Pa
 - [DeepMind introduction](https://deepmind.google/blog/d4rt-teaching-ai-to-see-the-world-in-four-dimensions/)
 
 ## Validation
+
+Edition 04 adds the execution trace, checked in headless Chrome at 390, 768 and 1440 CSS pixels: training/inference switching, keyboard stepping, parameter/gradient states, cache reuse, and synchronization with the tubelet selector. The earlier numerical and layout checks also pass.
 
 Anatomy edition 03 was checked in headless Chrome at 390, 768 and 1440 CSS pixels: tubelet endpoints, RGB/volume linkage, local/global/causal mask counts, attention normalization, keyboard tabs, loss scale invariance, gradient direction, missing-label masking and training/inference switching. No JavaScript exceptions or page-level horizontal overflow were observed. Diagrams were visually inspected on desktop and mobile.
 
