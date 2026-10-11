@@ -111,27 +111,44 @@ const asValue=x=>x instanceof Value?x:new Value(x),sum=xs=>xs.reduce((a,b)=>a.ad
 const dot=(a,b)=>sum(a.map((x,i)=>asValue(x).mul(b[i])));
 const mm=(a,w)=>a.map(row=>Array.from({length:w[0].length},(_,j)=>dot(row,w.map(r=>r[j]))));
 function softmax(xs){const max=Math.max(...xs.map(x=>x.data)),es=xs.map(x=>x.add(-max).exp()),den=sum(es).inv();return es.map(e=>e.mul(den));}
-function attention(q,k,v){return q.map(row=>{const weights=softmax(k.map(key=>dot(row,key).mul(.5)));return Array.from({length:v[0].length},(_,j)=>dot(weights,v.map(r=>r[j])));});}
+function attention(q,k,v,allowed=()=>true){
+ const scores=q.map(row=>k.map(key=>dot(row,key).mul(.5)));
+ const a=scores.map((row,i)=>{
+  const indices=row.map((_,j)=>j).filter(j=>allowed(i,j));
+  const live=softmax(indices.map(j=>row[j]));
+  return row.map((_,j)=>allowed(i,j)?live[indices.indexOf(j)]:new Value(0));
+ });
+ return {q,k,v,scores,a,read:a.map(row=>Array.from({length:v[0].length},(_,j)=>dot(row,v.map(r=>r[j]))))};
+}
 function backprop(loss){const seen=new Set(),nodes=[];function visit(v){if(seen.has(v))return;seen.add(v);v.parents.forEach(visit);nodes.push(v);}visit(loss);nodes.forEach(v=>v.grad=0);loss.grad=1;for(let i=nodes.length-1;i>=0;i--)nodes[i].backward();}
-let seed=123,groups,weights,iteration=0,losses=[],lastNorms={},deltaEncoder=0;
+let seed=123,groups,weights,iteration=0,losses=[],lastNorms={},deltaEncoder=0,trainingBusy=false;
 function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;}
 function matrix(rows,cols,group){return Array.from({length:rows},()=>Array.from({length:cols},()=>{const v=new Value((random()-.5)*2/Math.sqrt(rows));groups[group].push(v);return v;}));}
 const position=t=>.15+.7*t/7;
 const pixels=Array.from({length:8},(_,t)=>Array.from({length:4},(_,y)=>Array.from({length:4},(_,x)=>{const d=(x/3-position(t))**2+(y/3-.5)**2,b=Math.exp(-d*12);return [.15+.7*b,.2+.5*b,.25+.3*b];})));
-const patches=[];
-for(let t=0;t<4;t++)for(let y=0;y<2;y++)for(let x=0;x<2;x++){
- const patch=[];for(let dt=0;dt<2;dt++)for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++)patch.push(...pixels[t*2+dt][y*2+dy][x*2+dx]);patches.push(patch);
-}
-const queries=[[2/7,1],[6/7,1]],targets=[position(2),position(6)];
+const originalPixels=JSON.parse(JSON.stringify(pixels));
+let patches=[],queryTimes=[2,6];
+const residual=(x,read)=>x.map((row,i)=>row.map((v,j)=>v.add(read[i][j])));
 function forward(){
- const x=mm(patches,weights.patch),read=attention(mm(x,weights.q),mm(x,weights.k),mm(x,weights.v));
- const f=x.map((row,i)=>row.map((v,j)=>v.add(read[i][j])));
- const r=attention(mm(queries,weights.query),mm(f,weights.key),mm(f,weights.value));
- const pred=mm(r,weights.head).map(row=>row[0].add(weights.bias));
+ const input=pixels.map(frame=>frame.map(row=>row.map(rgb=>rgb.map(v=>new Value(v)))));
+ patches=[];
+ for(let t=0;t<4;t++)for(let y=0;y<2;y++)for(let x=0;x<2;x++){
+  const patch=[];for(let dt=0;dt<2;dt++)for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++)patch.push(...input[t*2+dt][y*2+dy][x*2+dx]);patches.push(patch);
+ }
+ const projected=mm(patches,weights.patch);
+ const x=projected.map((row,i)=>row.map((v,j)=>v.add(.08*Math.sin((i+1)*(j+1)))));
+ const local=attention(mm(x,weights.lq),mm(x,weights.lk),mm(x,weights.lv),(i,j)=>Math.floor(i/4)===Math.floor(j/4));
+ const l=residual(x,local.read);
+ const global=attention(mm(l,weights.q),mm(l,weights.k),mm(l,weights.v));
+ const f=residual(l,global.read);
+ // The miniature uses a one-pixel appearance crop, not D4RT's 9 x 9 patch.
+ const queries=queryTimes.map(t=>[t/7,1,...input[0][2][0]]),targets=queryTimes.map(position);
+ const cross=attention(mm(queries,weights.query),mm(f,weights.key),mm(f,weights.value));
+ const pred=mm(cross.read,weights.head).map(row=>row[0].add(weights.bias));
  const loss=sum(pred.map((p,i)=>{const e=p.add(-targets[i]);return e.mul(e);})).mul(.5);
- return {pred,loss};
+ return {input,projected,x,local,l,global,f,queries,targets,cross,pred,loss};
 }
-function initialize(){seed=123;groups={encoder:[],query:[],decoder:[],head:[]};weights={patch:matrix(24,4,'encoder'),q:matrix(4,4,'encoder'),k:matrix(4,4,'encoder'),v:matrix(4,4,'encoder'),query:matrix(2,4,'query'),key:matrix(4,4,'decoder'),value:matrix(4,4,'decoder'),head:matrix(4,1,'head'),bias:new Value(0)};groups.head.push(weights.bias);iteration=0;lastNorms={};deltaEncoder=0;losses=[forward().loss.data];renderMini();}
+function initialize(){pixels.splice(0,8,...JSON.parse(JSON.stringify(originalPixels)));queryTimes=[2,6];seed=123;groups={encoder:[],query:[],decoder:[],head:[]};weights={patch:matrix(24,4,'encoder'),lq:matrix(4,4,'encoder'),lk:matrix(4,4,'encoder'),lv:matrix(4,4,'encoder'),q:matrix(4,4,'encoder'),k:matrix(4,4,'encoder'),v:matrix(4,4,'encoder'),query:matrix(5,4,'query'),key:matrix(4,4,'decoder'),value:matrix(4,4,'decoder'),head:matrix(4,1,'head'),bias:new Value(0)};groups.head.push(weights.bias);iteration=0;lastNorms={};deltaEncoder=0;losses=[forward().loss.data];renderMini();}
 function train(){
  const {loss}=forward();backprop(loss);
  const frozen=$('freeze').checked;lastNorms={};
@@ -142,19 +159,40 @@ function train(){
  iteration++;losses.push(forward().loss.data);
 }
 function renderMini(){
- const {pred,loss}=forward();$('parameter-count').textContent=Object.values(groups).flat().length;
- $('predictions').innerHTML=pred.map((p,i)=>`<div class="prediction"><span>Query ${i+1} · target time ${i?7:3}</span><strong>${p.data.toFixed(4)} → ${targets[i].toFixed(4)}</strong></div>`).join('')+`<div class="prediction"><span>Mean squared error</span><strong id="mini-loss">${loss.data.toFixed(6)}</strong></div>`;
+ const {pred,loss,targets}=forward();$('parameter-count').textContent=Object.values(groups).flat().length;
+ $('predictions').innerHTML=pred.map((p,i)=>`<div class="prediction"><span>Query ${i+1} · target frame ${queryTimes[i]} (zero-based)</span><strong>${p.data.toFixed(4)} → ${targets[i].toFixed(4)}</strong></div>`).join('')+`<div class="prediction"><span>Mean squared error</span><strong id="mini-loss">${loss.data.toFixed(6)}</strong></div>`;
  const max=Math.max(...losses,1e-8),n=Math.max(1,losses.length-1),path=losses.map((l,i)=>`${i?'L':'M'}${35+390*i/n} ${135-100*l/max}`).join(' ');
  $('loss-chart').innerHTML=`<path d="M35 28 V135 H430" fill="none" stroke="#ddd"/><path d="${path}" fill="none" stroke="#64745a" stroke-width="2"/>`+text(35,160,'0','tiny')+text(340,160,`${iteration} SGD steps`,'tiny')+text(40,24,`max ${max.toFixed(4)}`,'tiny');
  const maxNorm=Math.max(...Object.values(lastNorms),1e-8),labels={encoder:'Video encoder',query:'Query embedding',decoder:'Cross-attention',head:'Output head'};
  $('gradient-bars').innerHTML=Object.keys(groups).map(name=>{const frozen=name==='encoder'&&$('freeze').checked,norm=lastNorms[name]||0;return `<div class="grad-row ${frozen?'frozen':''}"><span>${labels[name]}${frozen?' · frozen':''}</span><div class="grad-track"><div class="grad-fill" style="width:${norm/maxNorm*100}%"></div></div><b>${lastNorms[name]===undefined?'—':norm.toExponential(2)}</b></div>`;}).join('')+`<p class="small" id="encoder-update">Encoder parameter update norm: ${deltaEncoder.toExponential(3)}${iteration?'':' · no update yet'}</p>`;
  $('train-status').textContent=`Step ${iteration} · deterministic miniature`;
+ document.dispatchEvent(new Event('d4rt-miniature-updated'));
 }
 $('train-one').onclick=()=>{train();renderMini();};
-$('train-many').onclick=async()=>{const buttons=['train-one','train-many','reset','freeze'];buttons.forEach(id=>$(id).disabled=true);try{for(let i=0;i<20;i++){train();if(i%4===3){renderMini();await new Promise(resolve=>requestAnimationFrame(resolve));}}}finally{buttons.forEach(id=>$(id).disabled=false);renderMini();}};
+$('train-many').onclick=async()=>{trainingBusy=true;renderMini();const buttons=['train-one','train-many','reset','freeze'];buttons.forEach(id=>$(id).disabled=true);try{for(let i=0;i<20;i++){train();if(i%4===3){renderMini();await new Promise(resolve=>requestAnimationFrame(resolve));}}}finally{trainingBusy=false;buttons.forEach(id=>$(id).disabled=false);renderMini();}};
 $('reset').onclick=initialize;
 $('freeze').onchange=()=>{lastNorms={};deltaEncoder=0;renderMini();};
 initialize();
+function numeric(value){
+ if(value === null || typeof value !== "object")return value;
+ if(value instanceof Value)return value.data;
+ if(Array.isArray(value))return value.map(numeric);
+ return Object.fromEntries(Object.entries(value).map(([key,v])=>[key,numeric(v)]));
+}
+window.D4RTMiniature={
+ trace(){const f=forward();backprop(f.loss);return {
+  ...numeric(f),patches:numeric(patches),pixels:JSON.parse(JSON.stringify(pixels)),queryTimes:[...queryTimes],
+  gradients:{pixels:f.input.map(frame=>frame.map(row=>row.map(rgb=>rgb.map(v=>v.grad)))),
+   groups:Object.fromEntries(Object.entries(groups).map(([name,params])=>[name,Math.sqrt(params.reduce((s,p)=>s+p.grad*p.grad,0))]))},
+  iteration,busy:trainingBusy,parameterCount:Object.values(groups).flat().length,freeze:$('freeze').checked,
+  losses:[...losses],deltaEncoder,weights:{patch:numeric(weights.patch),head:numeric(weights.head),bias:weights.bias.data}
+ };},
+ editPixel(t,y,x,value){if(trainingBusy)return;if(![t,y,x,value].every(Number.isFinite)||!Number.isInteger(t)||!Number.isInteger(y)||!Number.isInteger(x)||t<0||t>7||x<0||x>3||y<0||y>3||value<0||value>1)return;pixels[t][y][x][0]=value;losses=[forward().loss.data];lastNorms={};deltaEncoder=0;renderMini();},
+ setQueryTime(t){if(trainingBusy)return;if(!Number.isInteger(t)||t<0||t>7)return;queryTimes[1]=t;losses=[forward().loss.data];lastNorms={};deltaEncoder=0;renderMini();},
+ train(){if(trainingBusy)return;train();renderMini();},reset(){if(!trainingBusy)initialize();},
+ freeze(value){if(trainingBusy)return;$('freeze').checked=!!value;lastNorms={};deltaEncoder=0;renderMini();},
+ pixelGradientCheck(t,y,x){const f=forward();backprop(f.loss);const analytic=f.input[t][y][x][0].grad,old=pixels[t][y][x][0],eps=1e-5;pixels[t][y][x][0]=old+eps;const plus=forward().loss.data;pixels[t][y][x][0]=old-eps;const minus=forward().loss.data;pixels[t][y][x][0]=old;return {analytic,numeric:(plus-minus)/(2*eps)};}
+};
 // Read-only diagnostics for reproducible gradient and rendering checks.
 window.D4RTTourChecks={gradientCheck(){const {loss}=forward();backprop(loss);const entries=[];for(const [name,params] of Object.entries(groups)){const ranked=[...params].sort((a,b)=>Math.abs(b.grad)-Math.abs(a.grad));const p=ranked[0],analytic=p.grad,old=p.data,eps=1e-5;p.data=old+eps;const plus=forward().loss.data;p.data=old-eps;const minus=forward().loss.data;p.data=old;entries.push({name,analytic,numeric:(plus-minus)/(2*eps)});}return entries;},snapshot(){return {iteration,loss:forward().loss.data,encoder:groups.encoder.map(p=>p.data),head:groups.head.map(p=>p.data),patches:patches.map(p=>p.length),parameterCount:Object.values(groups).flat().length};}};
 })();

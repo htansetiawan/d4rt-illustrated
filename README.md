@@ -4,17 +4,18 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Start with the anatomy — edition 09
+## Start with the anatomy — edition 10
 
 The homepage now follows a video's lifetime directly. The older, larger workbench remains at [reference.html](https://htansetiawan.github.io/d4rt-illustrated/reference.html); previously published workbench fragment links are forwarded there when needed.
 
+- **One clip, one computed lifetime:** edit an RGB pixel and trace changes through tubelet projection, local attention, global attention, an independent query decoder and the loss. The displayed values come from one executable network. Change a query without changing the scene bank; freeze the encoder and inspect its zero parameter update.
 - **Clickable full architecture:** inspect both RGB input paths, frame-local/global encoder operations, the shared feature bank, independent decoder queries and all 13 output channels. Switch training/inference to distinguish learned parameters, activations, cached features and gradient flow.
 - **Attention cost calculator:** change clip length and query count to see local, global and decoder score counts; compare Genie-style factorized routing on the same explicitly hypothetical token lattice.
 - **Connected overview:** video → tubelets → ViT encoder → shared scene features → independent point queries → output and training losses. Six stages include diagrams, tensor shapes, operations and sources.
 - **Pixel-level tokenization:** inspect two actual synthetic RGB crops, all 1,536 scalar addresses, and a computed continuous projection. The final tubelet is token 6,143. Inspector annotations do not enter the pixel data.
 - **Inside the encoder:** a 16-token, width-four computed transformer block exposes normalization, Q/K/V, scores, masks, softmax, value mixing, output projection, residual connections and an MLP. Switch between local/global attention and the separately labeled Genie temporal comparison. Each row is a numerical distribution, not a decorative heatmap.
 - **How it trains:** distinguish VideoMAE initialization, joint geometry training and fixed-weight inference. Follow geometric target construction, label masks, loss families, query sampling and the optimizer recipe.
-- **Train a miniature:** a separate 189-parameter attention network learns two coordinate targets from one synthetic clip using browser-native reverse-mode autodiff. Freeze its encoder to see which weights stop changing.
+- **Train a miniature:** the same 249-parameter attention network learns two coordinate targets from one synthetic clip using browser-native reverse-mode autodiff. Freeze its encoder to see which weights stop changing.
 - **Genie comparison:** continuous scene features versus discrete video codes, global attention versus factorized spatial/causal temporal attention, and geometry querying versus action-conditioned generation.
 
 All illustrations are original teaching tools. They do **not** execute D4RT weights or report D4RT performance. The trainable miniature fits two queries from one clip; its loss decrease is evidence of gradient flow, not generalization. Both teaching networks omit or simplify parts of the full model, as stated beside each experiment.
@@ -29,11 +30,13 @@ Genie means **Genie: Generative Interactive Environments (2024)**. Its ST-transf
 
 ## Files
 
+- `lifetime.js`, `lifetime.css`: connected video-to-loss inspector, using the same autodiff model as the training miniature in `tour.js`.
 - `atlas.js`, `atlas.css`: connected architecture inspector and attention shape calculator.
 - `index.html`, `deep-dive.js`, `deep-dive.css`: the anatomy-first homepage, raw-pixel inspector and computed encoder block.
 - `tour.js`, `tour.css`: six-stage walkthrough and differentiable miniature, also used by the earlier `anatomy-tour.html` permalink.
 - `reference.html`: advanced reference experiments and original geometry lab.
 - `workbench.*`, `cutaway.*`, `execution.*`, `anatomy.*`, `microscope.*`, `scene.js`, `app.js`, `style.css`: reference-workbench modules.
+- `tests/check_lifetime.py`: independent tensor/projection/attention arithmetic, 1→4→16 pixel-perturbation propagation, source-pixel bypass, query independence, input finite differences and shared training controls.
 - `tests/check_atlas.py`: every architecture block, training/inference transitions, independent attention-count checks and responsive layouts.
 - `tests/check_deep_dive.py`: pixel addresses/projection, masks, causality, normalization, inspector invariance, keyboard/blueprint navigation, old deep links and responsive layouts.
 - `tests/check_tour.py`: independent finite-difference gradient checks, frozen-encoder invariance, loss updates and tour controls.

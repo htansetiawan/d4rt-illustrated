@@ -20,7 +20,7 @@ with sync_playwright() as p:
     page.wait_for_function('window.D4RTTourChecks !== undefined')
     snapshot = lambda: page.evaluate('D4RTTourChecks.snapshot()')
     initial = snapshot()
-    assert initial['parameterCount'] == 189
+    assert initial['parameterCount'] == 249
     assert initial['patches'] == [24] * 16
     gradients = page.evaluate('D4RTTourChecks.gradientCheck()')
     for item in gradients:
