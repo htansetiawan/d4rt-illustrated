@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-URL=os.environ.get('D4RT_CHECK_URL', (Path(__file__).resolve().parents[1]/'index.html').as_uri())
+URL=os.environ.get('D4RT_CHECK_URL', (Path(__file__).resolve().parents[1]/'reference.html').as_uri())
 SCREENSHOTS=Path(tempfile.mkdtemp(prefix='d4rt-workbench-'))
 CHROME=os.environ.get('CHROME_PATH') or shutil.which('google-chrome') or shutil.which('chromium')
 if not CHROME: raise SystemExit('Install Chrome/Chromium or set CHROME_PATH.')

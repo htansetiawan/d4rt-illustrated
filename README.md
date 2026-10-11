@@ -1,86 +1,61 @@
 # D4RT, illustrated
 
-A buildless interactive companion to **Efficiently Reconstructing Dynamic Scenes One D4RT at a Time**.
+An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scenes One D4RT at a Time**.
 
-Live: https://htansetiawan.github.io/d4rt-illustrated/
+**Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Explore
+## Start with the anatomy
 
-Edition 07 adds [a guided anatomy tour](https://htansetiawan.github.io/d4rt-illustrated/anatomy-tour.html), now the homepage's primary action. Six linked stages follow the same computation from video to tubelets, encoder, point query, decoder and learning. Each contains a diagram, tensor ledger, pseudocode and source boundary. A domain selector distinguishes D4RT local/global attention from Genie's causal temporal sublayer and composed spatial–temporal reachability.
+The homepage now follows a video's lifetime directly. The older, larger workbench remains at [reference.html](https://htansetiawan.github.io/d4rt-illustrated/reference.html); previously published workbench fragment links are forwarded there when needed.
 
-The tour also includes an actual **189-parameter differentiable teaching network**: 16 RGB tubelets, one self-attention layer, one cross-attention layer, and two coordinate queries. Browser-native reverse-mode autodiff propagates an MSE gradient through both paths; controls train the network or freeze its encoder. It omits most full transformer components and fits two targets from one synthetic clip. It is neither D4RT inference nor an implementation or performance claim. The loss and parameter updates are computed, not canned animations. Source: `tour.js`, `tour.css`, `anatomy-tour.html`.
+- **Connected overview:** video → tubelets → ViT encoder → shared scene features → independent point queries → output and training losses. Six stages include diagrams, tensor shapes, operations and sources.
+- **Pixel-level tokenization:** inspect two actual synthetic RGB crops, all 1,536 scalar addresses, and a computed continuous projection. The final tubelet is token 6,143. Inspector annotations do not enter the pixel data.
+- **Inside the encoder:** a 16-token, width-four computed transformer block exposes normalization, Q/K/V, scores, masks, softmax, value mixing, output projection, residual connections and an MLP. Switch between local/global attention and the separately labeled Genie temporal comparison. Each row is a numerical distribution, not a decorative heatmap.
+- **How it trains:** distinguish VideoMAE initialization, joint geometry training and fixed-weight inference. Follow geometric target construction, label masks, loss families, query sampling and the optimizer recipe.
+- **Train a miniature:** a separate 189-parameter attention network learns two coordinate targets from one synthetic clip using browser-native reverse-mode autodiff. Freeze its encoder to see which weights stop changing.
+- **Genie comparison:** continuous scene features versus discrete video codes, global attention versus factorized spatial/causal temporal attention, and geometry querying versus action-conditioned generation.
 
-Edition 06 starts with a focused model workbench: actual tubelet RGB values → a computed six-channel illustrative projection; an expanded encoder block with normalization, Q/K/V, multi-head attention, MLP and residual routes; and a geometric label workshop with independently controlled source, target and camera times. The latter derives query and target values from a synthetic moving point and camera, including occlusion and missing-label controls. A composed attention-route comparison shows how Genie's spatial and temporal sublayers pass information indirectly. A scrubber exposes the reported training learning-rate schedule.
+All illustrations are original teaching tools. They do **not** execute D4RT weights or report D4RT performance. The trainable miniature fits two queries from one clip; its loss decrease is evidence of gradient flow, not generalization. Both teaching networks omit or simplify parts of the full model, as stated beside each experiment.
 
-- An illustrated cutaway for every execution step, including RGB grouping, patch projection, local/global encoder wiring, decoder Q/K/V paths, loss normalization and gradients through both branches.
+## Scientific boundaries
 
-- A connected execution trace: tensor shapes, encoder and decoder paths, gradient flow, weight updates, and inference cache reuse.
+Reported architecture: 40-layer ViT-g encoder, 8-layer cross-attention decoder, 2 × 16 × 16 tubelets. Training clips are 48 × 256 × 256; their 6,144 video-token count excludes aspect-ratio metadata. Position encoding, exact feature widths, head counts and the encoder's local/global layer schedule are not invented here.
 
-- An eight-stage video lifetime walkthrough, with training/inference modes and SVG export.
-- A tubelet picker over two actual synthetic RGB frames: 2 × 16 × 16 pixels → one continuous token.
-- A connected, exploded video-volume diagram and RGB pixel inspector, driven by that same tubelet selection.
-- Exact training-shape arithmetic: 48 × 256 × 256 → 6,144 video tokens, plus aspect-ratio metadata.
-- Selectable encoder attention masks: local, global, and a separately labeled Genie causal-temporal comparison.
-- An encoder tensor-layout ledger and a numerical attention microscope: project Q/K/V, compute scores, apply the mask, normalize, and mix values. All illustrative weights are inspectable.
-- Query construction, decoder Q/K/V routing, attention cost, and all 13 output dimensions.
-- A five-stage end-to-end training walkthrough, loss families, query sampling, and an interactive confidence objective.
-- A three-query geometric-loss experiment with explicit coordinates, separate depth normalization, signed log, an analytic derivative, missing-label masking and scalar gradient steps.
-- A visible distinction between VideoMAE pretraining, D4RT geometry training and fixed-weight inference.
-- A comparison with the original Genie paper, separating continuous scene features from a VQ video tokenizer.
-- A synthetic geometry lab separates source time, target time and camera coordinates.
-- Query recipes for tracking, point clouds, depth and camera pose.
-- An occupancy-grid simulation explains repeated-work avoidance.
-- Keyboard controls, mobile layout, reduced-motion support and print styles.
+Training losses use available labels. Occlusion does not necessarily make a synthetic 3D label unavailable. The paper separately normalizes prediction and target sets by their mean depths before signed-log 3D error. Appendix A repeats a confidence term; the companion explains the clear components without silently correcting the full objective.
 
-All simulations are original teaching illustrations, **not D4RT inference or benchmark measurements**. The floor, sphere and cube positions are explicit functions. World-view orbit is separate from the camera reference in the query. Coordinate units are arbitrary. The tubelet lab crops real pixels from a procedurally drawn clip, but does not apply learned patch-projection weights. The attention microscope uses hand-chosen 4-dimensional features and 4 × 2 matrices; it computes true softmax arithmetic on illustrative inputs, not trained D4RT activations. The geometry exercise differentiates a scalar perturbation under an isolated geometric objective and uses SGD for demonstration, not D4RT's AdamW update. No neural weights, external assets, analytics or dependencies are loaded.
-
-## Evidence boundaries
-
-The workbench computes an original six-feature linear projection with explicit deterministic weights and RGB normalization; these are not D4RT parameters or preprocessing claims. Its transformer cutaway uses the standard pre-normalization ViT template, with D4RT's unspecified block details kept symbolic. The label workshop uses a known synthetic trajectory, translated/yawed cameras and a ray-tested occluder. Its supervision-only coordinates never become forward network inputs. Linear learning-rate warmup is an illustrative interpolation; the paper specifies warmup duration and peak.
-
-The reported model uses a 40-layer ViT-g encoder (1 B parameters), 2 × 16 × 16 patches, and an 8-layer cross-attention decoder (144 M parameters). Its training configuration uses 48 frames at 256 × 256, 2,048 sampled queries, and 500k AdamW steps. These are sourced from §4; the complete diagram is in Appendix A, Figure 7. Feature widths and head counts are left symbolic rather than inferred from a similarly named backbone.
-
-Token counts, attention-score counts and the confidence minimum are derived arithmetic. Metadata tokens are excluded from score estimates, which are not memory or timing benchmarks. The confidence demo isolates `c * error - 0.2 * log(c)` and explores `(0, 1]` without asserting the head activation. The paper's appendix repeats a confidence coefficient/term; the website does not invent a corrected full loss.
-
-Genie refers to **Genie: Generative Interactive Environments (2024)**, not later Genie versions. Its factorized causal temporal attention is presented separately from D4RT's full-clip global attention.
+Genie means **Genie: Generative Interactive Environments (2024)**. Its ST-transformer is not assumed to use D4RT's two-frame tubelet size.
 
 ## Files
 
-- `workbench.js` / `workbench.css`: projection, encoder block, composed attention routes, geometric label factory, and optimizer schedule.
+- `index.html`, `deep-dive.js`, `deep-dive.css`: the anatomy-first homepage, raw-pixel inspector and computed encoder block.
+- `tour.js`, `tour.css`: six-stage walkthrough and differentiable miniature, also used by the earlier `anatomy-tour.html` permalink.
+- `reference.html`: advanced reference experiments and original geometry lab.
+- `workbench.*`, `cutaway.*`, `execution.*`, `anatomy.*`, `microscope.*`, `scene.js`, `app.js`, `style.css`: reference-workbench modules.
+- `tests/check_deep_dive.py`: pixel addresses/projection, masks, causality, normalization, inspector invariance, keyboard/blueprint navigation, old deep links and responsive layouts.
+- `tests/check_tour.py`: independent finite-difference gradient checks, frozen-encoder invariance, loss updates and tour controls.
+- `tests/check_workbench.py`: retained reference experiments.
 
-- `index.html`: all content, research links and accessible control markup.
-- `cutaway.js` / `cutaway.css`: operation-level diagrams synchronized with the execution trace and tubelet crops.
-- `execution.js` / `execution.css`: keyboard-accessible computational walkthrough with linked tubelet addresses.
-- `anatomy.js` / `anatomy.css`: model, tokenization, attention and training interactives.
-- `microscope.js` / `microscope.css`: connected tubelet volume, computed attention and geometric-gradient experiments.
-- `scene.js` / `app.js`: synthetic geometry, task recipes and occupancy demo.
-- `style.css`: shared gray-on-white design and responsive layout.
+## Run
 
-## Run and publish
+Buildless HTML, CSS and JavaScript. Open `index.html`, or run `python3 -m http.server 8000`. GitHub Pages serves the repository root on `main`; `.nojekyll` is retained. No model downloads or external fonts.
 
-Open `index.html` directly, or run `python3 -m http.server 8000` here. GitHub Pages serves the repository root on `main`; `.nojekyll` disables Jekyll processing. There is no build step.
+Browser tests require Python Playwright and Chrome. Set `CHROME_PATH` if needed. `D4RT_DEEP_URL`, `D4RT_TOUR_URL` and `D4RT_CHECK_URL` override their respective target URLs. Example:
 
-## Research sources
+```sh
+python3 tests/check_deep_dive.py
+D4RT_TOUR_URL=file:///absolute/path/index.html python3 tests/check_tour.py
+python3 tests/check_workbench.py
+```
 
-- [Conference publication](https://openaccess.thecvf.com/content/CVPR2026/html/Zhang_Efficiently_Reconstructing_Dynamic_Scenes_One_D4RT_at_a_Time_CVPR_2026_paper.html)
-- [Authors’ project](https://d4rt-paper.github.io/)
-- [Technical preprint, method §2, Algorithm 1](https://arxiv.org/html/2512.08924v2)
-- [Full model and training recipe, Appendix A](https://arxiv.org/html/2512.08924v2#A1)
-- [Genie methodology and ST-transformer](https://arxiv.org/html/2402.15391v1#S2)
-- [DeepMind introduction](https://deepmind.google/blog/d4rt-teaching-ai-to-see-the-world-in-four-dimensions/)
+Tests cover 390, 768 and 1440 pixel widths. Screenshots are written to temporary directories. The teaching network's analytical gradients are checked against finite differences in encoder, query, decoder and output parameters.
 
-## Validation
+## Primary sources
 
-Edition 07: `python3 tests/check_tour.py` checks all six stages, token address 6,143, local/global/causal/composed attention domains, keyboard navigation, deep links, deterministic resets, frozen-encoder invariance, and finite-difference agreement for gradients in all four parameter groups. Twenty teaching SGD steps reduce MSE from 0.33505 to 0.04138; this is only a two-query fit, not a model benchmark. Responsive checks cover 390, 768 and 1440 pixels, SVG text bounds and browser exceptions. Set `D4RT_TOUR_URL` for a hosted check.
+- [Conference paper](https://openaccess.thecvf.com/content/CVPR2026/html/Zhang_Efficiently_Reconstructing_Dynamic_Scenes_One_D4RT_at_a_Time_CVPR_2026_paper.html)
+- [Authors' project](https://d4rt-paper.github.io/)
+- [D4RT method and architecture](https://arxiv.org/html/2512.08924v2#S2)
+- [D4RT model and training appendix](https://arxiv.org/html/2512.08924v2#A1)
+- [VideoMAE initialization ablation](https://arxiv.org/html/2512.08924v2#A4)
+- [Genie ST-transformer and tokenizer](https://arxiv.org/html/2402.15391v1#S2)
 
-Edition 06: headless Chrome checks at 390, 768 and 1440 CSS pixels verify pixel addresses through the last tubelet, computed-feature invariance when only the scalar inspector moves, linked tubelet controls, encoder domains, composed Genie routes, source/target/camera coordinate invariants, occlusion versus missing labels, backward paths, learning-rate endpoints, keyboard tabs, SVG bounds, internal links and page overflow. The earlier attention/gradient/execution checks also pass. Desktop and mobile diagrams were visually reviewed.
-
-Run the workbench checks with `python3 tests/check_workbench.py` after installing Playwright's Python package and Chrome/Chromium. Set `CHROME_PATH` for a nonstandard browser location and `D4RT_CHECK_URL` to check a hosted version. Screenshots go to a temporary directory.
-
-Edition 05 adds synchronized operation cutaways and a direct encoder overview. Headless Chrome checks pass at 390, 768 and 1440 CSS pixels: all training/inference operations, tubelet image updates, Q/K/V labels, separate target/prediction normalization, gradient routes, disabled training controls at inference, SVG text bounds, and page overflow. Existing numerical and execution tests also pass. Desktop and mobile diagrams were visually inspected.
-
-Edition 04 adds the execution trace, checked in headless Chrome at 390, 768 and 1440 CSS pixels: training/inference switching, keyboard stepping, parameter/gradient states, cache reuse, and synchronization with the tubelet selector. The earlier numerical and layout checks also pass.
-
-Anatomy edition 03 was checked in headless Chrome at 390, 768 and 1440 CSS pixels: tubelet endpoints, RGB/volume linkage, local/global/causal mask counts, attention normalization, keyboard tabs, loss scale invariance, gradient direction, missing-label masking and training/inference switching. No JavaScript exceptions or page-level horizontal overflow were observed. Diagrams were visually inspected on desktop and mobile.
-
-Checked 2026-10-11 UTC. Independent educational companion; no author affiliation is implied. Research credit remains with the listed authors. Diagrams are generated locally from original code rather than copied from the publication.
+Research checked October 11, 2026. Credit remains with the paper's authors; no author affiliation is implied.
