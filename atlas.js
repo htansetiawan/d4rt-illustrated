@@ -4,7 +4,7 @@
   const $ = id => document.getElementById(id);
   if (!$('model-atlas')) return;
   const source = 'https://arxiv.org/html/2512.08924v2';
-  const state = {node: 'local', mode: 'train', frames: 48, queries: 2048};
+  const state = {node: 'video', mode: 'train', frames: 48, queries: 2048};
   const nodes = {
     video: {
       title: 'A clip has two destinations.', shape: 'RGB: [B, 48, 256, 256, 3]',
@@ -114,6 +114,7 @@
     $('atlas-source').href = source + n.link;
     $('atlas-deeper').href = n.detail;
     $('atlas-status').textContent = `${state.mode === 'train' ? 'Training' : 'Inference'} · ${n.title}`;
+    document.dispatchEvent(new CustomEvent('atlas-select', {detail: {...state}}));
   }
   function mode(value) {
     state.mode = value;
@@ -154,8 +155,12 @@
   }
   $('atlas-next').addEventListener('click', next);
   $('atlas-next-detail').addEventListener('click', next);
+  $('atlas-prev-detail').addEventListener('click', () => {
+    const available = order.filter(n => state.mode === 'train' || n !== 'loss');
+    select(available[(available.indexOf(state.node) - 1 + available.length) % available.length]);
+  });
   $('atlas-frames').addEventListener('change', event => {state.frames = +event.target.value; budget();});
   $('atlas-queries').addEventListener('change', event => {state.queries = +event.target.value; budget();});
   mode('train'); budget();
-  window.D4RTAtlas = {counts, snapshot: () => ({...state, counts: counts(state.frames, state.queries)})};
+  window.D4RTAtlas = {counts, select, snapshot: () => ({...state, counts: counts(state.frames, state.queries)})};
 })();

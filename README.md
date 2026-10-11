@@ -4,9 +4,11 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Start with the anatomy — edition 11
+## Start with the anatomy — edition 12
 
-The homepage now leads with the reported architecture, then follows tubelets → encoder → decoder → geometric supervision. Small executable networks are placed afterward as optional computation labs. The older, larger workbench remains at [reference.html](https://htansetiawan.github.io/d4rt-illustrated/reference.html); previously published workbench fragment links are forwarded there when needed.
+Edition 12 adds nine visual cutaways directly inside the main architecture inspector. Start at RGB video, scrub a tubelet address, select readable encoder tokens, inspect the two decoder streams, and follow supervision back to learned weights. A reduced 12-token lattice compares D4RT local/global masks with Genie’s causal temporal sublayer; masks show permitted connections, not trained attention weights.
+
+The homepage leads with the reported architecture, then follows tubelets → encoder → decoder → geometric supervision. Small executable networks are placed afterward as optional computation labs. The older, larger workbench remains at [reference.html](https://htansetiawan.github.io/d4rt-illustrated/reference.html); previously published workbench fragment links are forwarded there when needed.
 
 - **Connected geometry and training:** source, target and camera controls compute point trajectories and world-to-camera targets. An inline decoder schematic shows both input streams, query embeddings, cross-attention and the 13 output channels. The loss workshop independently normalizes prediction/label depths and exposes signed-log L1, confidence, missing labels, scale invariance and analytic XYZ derivatives. Predictions are deliberately separate fixed teaching values, not D4RT outputs.
 - **Exploded tubelets:** two separated frame planes and their common patch address follow the original RGB inspector. Pixel grouping is distinguished from temporal attention.
@@ -33,6 +35,9 @@ Genie means **Genie: Generative Interactive Environments (2024)**. Its ST-transf
 The geometry workshop uses arbitrary units and zero-based times. Its isolated objective averages coordinate-summed L1 over labeled points with a shared confidence, and excludes unlabeled points from its depth means. These explicit teaching conventions do not claim to recover unspecified paper reduction/masking details. The output gradient includes dependence on the shared predicted mean depth, verified for all nine coordinates by independent finite differences.
 
 ## Files
+
+- `atlas-cutaways.js`, `atlas-cutaways.css`: nine visual operations, guided stage navigation, tubelet address sliders and encoder connectivity comparison.
+- `tests/check_cutaways.py`: independently enumerated local/global/causal masks, final tubelet index, training/inference navigation and responsive SVG layout.
 
 - `geometry-lab.js`, `geometry-lab.css`: connected physical-query and supervision workshops, decoder anatomy, tubelet-volume diagram.
 - `tests/check_geometry.py`: independent geometry, normalization and derivative checks; source/target/camera invariants; no label inputs to predictions; scale invariance; masking; responsive layouts.
@@ -75,3 +80,5 @@ Tests cover 390, 768 and 1440 pixel widths. Screenshots are written to temporary
 Research checked October 11, 2026. Credit remains with the paper's authors; no author affiliation is implied.
 
 Edition 11 verification: geometry, architecture, deep-dive and lifetime suites pass at 390, 768 and 1440 pixels; new desktop/mobile diagrams visually reviewed. No browser exceptions or page-level horizontal overflow.
+
+Edition 12 verification: cutaway, architecture, deep-dive and geometric-training suites pass at 390, 768 and 1440 pixels. Checks independently enumerate all 48 selected-token/mask combinations, verify the last tubelet index (6,143), preserve training/inference controls, and check SVG label bounds and selected-token contrast. Desktop/mobile diagrams visually reviewed; no browser exceptions or page-level horizontal overflow.
