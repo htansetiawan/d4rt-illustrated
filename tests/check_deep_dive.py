@@ -7,7 +7,7 @@ import tempfile
 from playwright.sync_api import sync_playwright
 
 root = Path(__file__).resolve().parents[1]
-url = os.environ.get('D4RT_DEEP_URL', (root / 'index.html').as_uri())
+url = os.environ.get('D4RT_DEEP_URL', (root / 'anatomy.html').as_uri())
 artifacts = Path(tempfile.mkdtemp(prefix='d4rt-deep-'))
 
 def slider(page, name, value):

@@ -4,7 +4,15 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Start with the anatomy — edition 12
+## Start with the video lifetime — edition 13
+
+The homepage now follows **one persistent video region through nine large, sequential diagrams**. Its full 6,144-address lattice makes frame-local, global and Genie-style causal connectivity inspectable at the reported video-token count. Scrub or play the synthetic clip, trace both patches into a tubelet, then follow the continuous projection, encoder, query branch, decoder and supervised update.
+
+Use `index.html` for this guided entry point; `anatomy.html` retains every edition-12 computation lab. Old published anatomy fragment links redirect to their original experiments. No D4RT weights execute in either page.
+
+New files: `pipeline.js`, `pipeline.css`, `tests/check_pipeline.py`. The new test independently checks token addresses, pixel crops, causal and composed masks, inference/training navigation, legacy links, SVG bounds and responsive layouts.
+
+## Detailed anatomy — edition 12
 
 Edition 12 adds nine visual cutaways directly inside the main architecture inspector. Start at RGB video, scrub a tubelet address, select readable encoder tokens, inspect the two decoder streams, and follow supervision back to learned weights. A reduced 12-token lattice compares D4RT local/global masks with Genie’s causal temporal sublayer; masks show permitted connections, not trained attention weights.
 
@@ -43,7 +51,7 @@ The geometry workshop uses arbitrary units and zero-based times. Its isolated ob
 - `tests/check_geometry.py`: independent geometry, normalization and derivative checks; source/target/camera invariants; no label inputs to predictions; scale invariance; masking; responsive layouts.
 - `lifetime.js`, `lifetime.css`: connected video-to-loss inspector, using the same autodiff model as the training miniature in `tour.js`.
 - `atlas.js`, `atlas.css`: connected architecture inspector and attention shape calculator.
-- `index.html`, `deep-dive.js`, `deep-dive.css`: the anatomy-first homepage, raw-pixel inspector and computed encoder block.
+- `anatomy.html`, `deep-dive.js`, `deep-dive.css`: the anatomy-first homepage, raw-pixel inspector and computed encoder block.
 - `tour.js`, `tour.css`: six-stage walkthrough and differentiable miniature, also used by the earlier `anatomy-tour.html` permalink.
 - `reference.html`: advanced reference experiments and original geometry lab.
 - `workbench.*`, `cutaway.*`, `execution.*`, `anatomy.*`, `microscope.*`, `scene.js`, `app.js`, `style.css`: reference-workbench modules.
@@ -62,7 +70,7 @@ Browser tests require Python Playwright and Chrome. Set `CHROME_PATH` if needed.
 ```sh
 python3 tests/check_geometry.py
 python3 tests/check_deep_dive.py
-D4RT_TOUR_URL=file:///absolute/path/index.html python3 tests/check_tour.py
+D4RT_TOUR_URL=file:///absolute/path/anatomy.html python3 tests/check_tour.py
 python3 tests/check_workbench.py
 ```
 
@@ -82,3 +90,5 @@ Research checked October 11, 2026. Credit remains with the paper's authors; no a
 Edition 11 verification: geometry, architecture, deep-dive and lifetime suites pass at 390, 768 and 1440 pixels; new desktop/mobile diagrams visually reviewed. No browser exceptions or page-level horizontal overflow.
 
 Edition 12 verification: cutaway, architecture, deep-dive and geometric-training suites pass at 390, 768 and 1440 pixels. Checks independently enumerate all 48 selected-token/mask combinations, verify the last tubelet index (6,143), preserve training/inference controls, and check SVG label bounds and selected-token contrast. Desktop/mobile diagrams visually reviewed; no browser exceptions or page-level horizontal overflow.
+
+Edition 13 verification: the guided-page suite passes 73 independently enumerated attention masks, final tubelet pixel/address checks, query controls, training/inference switching, animation stop, legacy deep-link forwarding and SVG bounds at 390/768/1440 pixels. The retained cutaway suite also passes. New tubelet, encoder and training diagrams were visually reviewed; no browser exceptions or page-level horizontal overflow. Wide diagrams scroll inside their panels on narrow screens.

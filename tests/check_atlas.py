@@ -6,7 +6,7 @@ import tempfile
 from playwright.sync_api import sync_playwright
 
 root = Path(__file__).resolve().parents[1]
-url = os.environ.get('D4RT_ATLAS_URL', (root / 'index.html').as_uri())
+url = os.environ.get('D4RT_ATLAS_URL', (root / 'anatomy.html').as_uri())
 screens = Path(tempfile.mkdtemp(prefix='d4rt-atlas-'))
 with sync_playwright() as p:
     browser = p.chromium.launch(

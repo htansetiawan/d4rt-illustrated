@@ -6,7 +6,7 @@ import tempfile
 from playwright.sync_api import sync_playwright
 
 root = Path(__file__).resolve().parents[1]
-url = os.environ.get('D4RT_CUTAWAY_URL', (root / 'index.html').as_uri())
+url = os.environ.get('D4RT_CUTAWAY_URL', (root / 'anatomy.html').as_uri())
 screens = Path(tempfile.mkdtemp(prefix='d4rt-cutaway12-'))
 with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=os.environ.get('CHROME_PATH', '/usr/bin/google-chrome'),
