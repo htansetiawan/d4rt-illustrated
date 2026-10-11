@@ -8,14 +8,16 @@
   <title>D4RT, illustrated — Inside the model, from video to geometry</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="anatomy.css?v=anatomy-4">
-  <link rel="stylesheet" href="microscope.css?v=anatomy-4">
-  <link rel="stylesheet" href="execution.css?v=anatomy-4">
+  <link rel="stylesheet" href="anatomy.css?v=anatomy-5">
+  <link rel="stylesheet" href="microscope.css?v=anatomy-5">
+  <link rel="stylesheet" href="execution.css?v=anatomy-5">
+  <link rel="stylesheet" href="cutaway.css?v=anatomy-5">
   <script src="scene.js" defer></script>
-  <script src="app.js?v=anatomy-4" defer></script>
-  <script src="anatomy.js?v=anatomy-4" defer></script>
-  <script src="microscope.js?v=anatomy-4" defer></script>
-  <script src="execution.js?v=anatomy-4" defer></script>
+  <script src="app.js?v=anatomy-5" defer></script>
+  <script src="anatomy.js?v=anatomy-5" defer></script>
+  <script src="microscope.js?v=anatomy-5" defer></script>
+  <script src="cutaway.js?v=anatomy-5" defer></script>
+  <script src="execution.js?v=anatomy-5" defer></script>
 </head>
 <body class="anatomy-edition">
 <a class="skip" href="#main">Skip to content</a>
@@ -24,14 +26,15 @@
   <nav aria-label="Main navigation"><a href="#architecture">Anatomy</a><a href="#training">Training</a><a href="#sources">Read the paper ↗</a></nav>
 </header>
 <div class="page-layout">
-<aside class="rail"><div class="rail-label">MODEL ANATOMY / 04</div><nav aria-label="Chapters"><a href="#overview" class="active"><span>01</span>The idea</a><a href="#architecture"><span>02</span>Lifetime of a video</a><a href="#tokenizer"><span>03</span>Tubelets & tokens</a><a href="#encoder"><span>04</span>Encoder attention</a><a href="#decoder"><span>05</span>Query & decoder</a><a href="#training"><span>06</span>How it trains</a><a href="#genie"><span>07</span>Compare with Genie</a><a href="#query-lab"><span>08</span>The geometry lab</a><a href="#recipes"><span>09</span>Tasks from queries</a><a href="#efficiency"><span>10</span>Efficient inference</a><a href="#understanding"><span>11</span>Check your intuition</a><a href="#sources"><span>12</span>Research notes</a></nav><p>An independent, interactive reading of the architecture and training recipe.</p><div class="progress-track"><div id="reading-progress"></div></div></aside>
+<aside class="rail"><div class="rail-label">MODEL ANATOMY / 05</div><nav aria-label="Chapters"><a href="#overview" class="active"><span>01</span>The idea</a><a href="#architecture"><span>02</span>Lifetime of a video</a><a href="#tokenizer"><span>03</span>Tubelets & tokens</a><a href="#encoder"><span>04</span>Encoder attention</a><a href="#decoder"><span>05</span>Query & decoder</a><a href="#training"><span>06</span>How it trains</a><a href="#genie"><span>07</span>Compare with Genie</a><a href="#query-lab"><span>08</span>The geometry lab</a><a href="#recipes"><span>09</span>Tasks from queries</a><a href="#efficiency"><span>10</span>Efficient inference</a><a href="#understanding"><span>11</span>Check your intuition</a><a href="#sources"><span>12</span>Research notes</a></nav><p>An independent, interactive reading of the architecture and training recipe.</p><div class="progress-track"><div id="reading-progress"></div></div></aside>
 <main id="main">
 <section id="overview" class="hero chapter">
   <div class="eyebrow"><span class="live-dot"></span> THE MODEL, FROM PIXELS TO PREDICTIONS</div>
   <h1>The anatomy<br><span>of a moving world.</span></h1>
   <p class="lead">How do pixels become geometry? Follow a video through <strong>D4RT</strong>: tubelet by tubelet, attention layer by attention layer, from the first RGB frame to the loss that teaches it 3D.</p>
-  <div class="hero-actions"><a class="button dark" href="#architecture">Open the model <span>↓</span></a><a class="text-link" href="#training">How it trains ↓</a><a class="text-link" href="https://d4rt-paper.github.io/" target="_blank" rel="noopener">Original research ↗</a></div>
-  <div class="edition-note"><span>ANATOMY EDITION 04</span><a href="#execution">Step through the model ↗</a><a href="#tubelet-volume">Unfold a tubelet ↗</a><a href="#attention-math">Compute attention ↗</a><a href="#gradient-lab">Trace a training error ↗</a></div>
+  <div class="hero-actions"><a class="button dark" href="#execution">Open the model <span>↓</span></a><a class="text-link" href="#training">How it trains ↓</a><a class="text-link" href="https://d4rt-paper.github.io/" target="_blank" rel="noopener">Original research ↗</a></div>
+  <div class="edition-note"><span>ANATOMY EDITION 05</span><a href="#execution">A visual cutaway at every operation. Open the guided trace ↗</a></div>
+  <div class="encoder-answer"><p><strong>What is the encoder?</strong> A 40-layer ViT-g video transformer. It embeds <strong>2 × 16 × 16</strong> tubelets, interleaves local spatial and full-video self-attention, and produces features that an <strong>8-layer cross-attention decoder</strong> reads. Geometry losses train both paths end-to-end.</p><nav aria-label="Start your anatomy walkthrough"><a href="#execution">Trace the computation ↓</a><a href="#tokenizer">Inspect actual tubelet pixels ↓</a><a href="#genie">Compare with Genie ↓</a></nav><p class="footnote"><a href="https://arxiv.org/html/2512.08924v2#S4">Reported configuration, §4 ↗</a></p></div>
   <div class="hero-visual"><canvas id="hero-canvas" aria-label="Illustration of a moving sphere and its 3D trajectory">A point on a moving sphere traces a path through three-dimensional space.</canvas><div class="hero-caption"><span>SPACE × TIME</span><span>One identity. Many positions.</span></div><div class="hero-equation">(u, v, t<sub>src</sub>) <span>→</span> (x, y, z)<sub>t<sub>tgt</sub>, camera t<sub>cam</sub></sub></div></div>
   <div class="intro-notes"><p><span>THE SHIFT</span>Build the scene representation once. Ask targeted questions many times.</p><p><span>THE NAME</span>Dynamic <strong>4D</strong> Reconstruction and Tracking. The fourth dimension is time.</p></div>
 </section>
@@ -49,9 +52,11 @@
   </div>
   <div class="spec-strip"><div><strong>40</strong><span>ViT-g encoder layers</span></div><div><strong>1 B</strong><span>encoder parameters</span></div><div><strong>8</strong><span>cross-attention layers</span></div><div><strong>144 M</strong><span>decoder parameters</span></div></div>
   <p class="footnote">Architecture: <a href="https://arxiv.org/html/2512.08924v2#S2.SS2">§2.2</a>, configuration: <a href="https://arxiv.org/html/2512.08924v2#S4">§4</a>, full wiring: <a href="https://arxiv.org/html/2512.08924v2#A1">Appendix A, Figure 7</a>. Original redrawn schematic; normalization and residual wiring omitted. C and d denote feature widths; we leave unspecified implementation dimensions symbolic.</p>
-  <div id="execution" class="execution-intro"><span class="caps">A COMPUTATIONAL WALKTHROUGH</span><h3>Read the model like a program.</h3><p>Step through the data path, then follow the gradients back. Switch to inference to see what disappears and what can be reused. Every line opens the corresponding tensor shape and a link to its detailed experiment below.</p></div>
+  <div id="execution" class="execution-intro"><span class="caps">A COMPUTATIONAL WALKTHROUGH</span><h3>Read the model like a program.</h3><p>Step through the data path, then follow the gradients back. Switch to inference to see what disappears and what can be reused. Every line opens a connected visual cutaway, tensor shapes, and a link to its detailed experiment below. On a small screen, the diagram scrolls sideways.</p></div>
   <div class="surface execution">
     <div class="panel-top"><span class="caps">VIDEO → FEATURES → QUERY → GEOMETRY</span><div class="segmented" aria-label="Execution trace mode"><button type="button" data-exec-mode="training" aria-pressed="true">Training step</button><button type="button" data-exec-mode="inference" aria-pressed="false">Inference &amp; reuse</button></div></div>
+    <div class="cutaway-jumps" aria-label="Jump to a model operation"><button type="button" data-cutaway-go="tokenize">Tubelets</button><button type="button" data-cutaway-go="local_attention">Local attention</button><button type="button" data-cutaway-go="global_attention">Global attention</button><button type="button" data-cutaway-go="query_embed">Point query</button><button type="button" data-cutaway-go="cross_attention">Decoder</button><button type="button" data-cutaway-go="loss =">Loss</button><button type="button" data-cutaway-go="backward">Backpropagation</button></div>
+    <div class="cutaway"><div class="cutaway-heading"><strong id="cutaway-title">Start with pixels, preserve the geometry</strong><span id="cutaway-phase">FORWARD PASS</span></div><div class="cutaway-window" tabindex="0" role="region" aria-label="Model cutaway; scroll horizontally on a small screen"><svg id="cutaway-svg" viewBox="0 0 900 285" role="img" aria-label="Selected model operation"></svg></div><p id="cutaway-caption" class="cutaway-caption"></p></div>
     <div class="execution-body"><div id="execution-code" class="execution-code" role="group" aria-label="Select a computational step; up and down arrows navigate"></div><div class="execution-detail" aria-live="polite"><span id="execution-kicker" class="caps"></span><h4 id="execution-title"></h4><p id="execution-description"></p><code id="execution-shape" class="execution-shape"></code><a id="execution-deeper" href="#tokenizer">Open this part of the model ↓</a><div id="execution-weights" class="execution-weights" aria-label="Parameter status"></div><p class="execution-tensor-note">Shapes omit the clip batch and, where stated, the aspect-ratio token. C and d remain symbolic. This is explanatory pseudocode, not the authors’ implementation.</p></div></div>
     <div id="execution-connections" class="execution-connections" aria-label="Information flow"></div>
     <div class="execution-readout"><span id="execution-status"></span><a id="execution-token" href="#tubelet-volume"></a></div>

@@ -44,6 +44,7 @@
     $('execution-next').disabled=index===list.length-1;
     $('execution-position').textContent=`${index+1} / ${list.length}`;
     document.querySelectorAll('[data-exec-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.execMode===mode));
+    window.dispatchEvent(new CustomEvent('d4rt:execution', {detail: {node:s.node, mode, index, code:s.code}}));
     const b=$('execution-code').children[index];
     if(matchMedia('(max-width:750px)').matches) $('execution-code').scrollTop=b.offsetTop-$('execution-code').clientHeight/2+b.clientHeight/2;
     if (focus) {

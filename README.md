@@ -6,6 +6,8 @@ Live: https://htansetiawan.github.io/d4rt-illustrated/
 
 ## Explore
 
+- An illustrated cutaway for every execution step, including RGB grouping, patch projection, local/global encoder wiring, decoder Q/K/V paths, loss normalization and gradients through both branches.
+
 - A connected execution trace: tensor shapes, encoder and decoder paths, gradient flow, weight updates, and inference cache reuse.
 
 - An eight-stage video lifetime walkthrough, with training/inference modes and SVG export.
@@ -37,6 +39,7 @@ Genie refers to **Genie: Generative Interactive Environments (2024)**, not later
 ## Files
 
 - `index.html`: all content, research links and accessible control markup.
+- `cutaway.js` / `cutaway.css`: operation-level diagrams synchronized with the execution trace and tubelet crops.
 - `execution.js` / `execution.css`: keyboard-accessible computational walkthrough with linked tubelet addresses.
 - `anatomy.js` / `anatomy.css`: model, tokenization, attention and training interactives.
 - `microscope.js` / `microscope.css`: connected tubelet volume, computed attention and geometric-gradient experiments.
@@ -57,6 +60,8 @@ Open `index.html` directly, or run `python3 -m http.server 8000` here. GitHub Pa
 - [DeepMind introduction](https://deepmind.google/blog/d4rt-teaching-ai-to-see-the-world-in-four-dimensions/)
 
 ## Validation
+
+Edition 05 adds synchronized operation cutaways and a direct encoder overview. Headless Chrome checks pass at 390, 768 and 1440 CSS pixels: all training/inference operations, tubelet image updates, Q/K/V labels, separate target/prediction normalization, gradient routes, disabled training controls at inference, SVG text bounds, and page overflow. Existing numerical and execution tests also pass. Desktop and mobile diagrams were visually inspected.
 
 Edition 04 adds the execution trace, checked in headless Chrome at 390, 768 and 1440 CSS pixels: training/inference switching, keyboard stepping, parameter/gradient states, cache reuse, and synchronization with the tubelet selector. The earlier numerical and layout checks also pass.
 
