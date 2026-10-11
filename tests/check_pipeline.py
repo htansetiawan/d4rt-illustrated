@@ -16,6 +16,20 @@ with sync_playwright() as p:
     page.on('pageerror', lambda e: errors.append(str(e)))
     page.goto(url, wait_until='load')
     page.wait_for_function('window.D4RTPipeline !== undefined')
+    # Genie Figure 2 stages and the factorized causal attention path.
+    assert page.locator('#ga-grid .ga-time').count() == 4
+    page.locator('[data-ga=lam]').click()
+    assert 'PHASE 2A' in page.locator('#ga-kicker').inner_text()
+    page.locator('[data-ga=world]').click()
+    assert 'PHASE 2B' in page.locator('#ga-kicker').inner_text()
+    page.locator('[data-route=temporal]').click()
+    assert 'never its future' in page.locator('#ga-route').inner_text()
+    page.locator('#ga-time').fill('0')
+    assert page.locator('#ga-time-label').inner_text() == '1 / 4'
+    page.locator('[data-route=both]').click()
+    assert 'without future leakage' in page.locator('#ga-route').inner_text()
+    page.locator('[data-ga=tokenizer]').click()
+    assert '1,024' in page.locator('.ga-numbers').inner_text()
     nodes = ['video', 'tubelet', 'embed', 'local', 'global', 'query', 'decoder', 'heads', 'train']
     for index, node in enumerate(nodes):
         page.locator(f'[data-pipe-stage="{node}"]').click()

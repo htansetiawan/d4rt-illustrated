@@ -4,7 +4,7 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Trace the tensors — edition 15
+## Genie, opened up — edition 16\n\nThe homepage now has a source-linked Genie anatomy alongside D4RT: discrete VQ video codes versus continuous tubelet features, the tokenizer/ST-transformer distinction, Figure 2 training phases, and an interactive spatial/causal temporal token-grid explorer. The Genie code uses paper-reported codebook and model sizes while marking the toy grid as illustrative.\n\n## Trace the tensors — edition 15
 
 The nine-stage homepage now carries an attached tensor notebook: shapes, selected tubelet addresses, softmax axes, and per-head attention score counts. Change the decoder query count (1, 2,048, or 65,536) to see which dimensions grow while the encoded clip stays the same. Training retains the paper's 2,048-query setting and explains how shared features and mean-depth normalization connect query losses.
 
