@@ -6,12 +6,46 @@
 <meta name="description" content="Follow pixels through D4RT's tubelet projection, ViT encoder, cross-attention decoder and training. An interactive, source-grounded anatomy.">
 <link rel="stylesheet" href="tour.css?v=7"><script defer src="tour.js?v=7"></script>
 <link rel="stylesheet" href="deep-dive.css?v=8"><script defer src="deep-dive.js?v=8"></script>
+<link rel="stylesheet" href="atlas.css?v=9"><script defer src="atlas.js?v=9"></script>
 </head>
 <body>
 <a class="skip" href="#tour">Skip to the anatomy</a>
-<header><a href="index.html" class="brand">d4rt <span>/ illustrated</span></a><nav aria-label="Site"><a href="#tokenizer">Tubelets</a><a href="#encoder">Encoder</a><a href="#tour">Anatomy</a><a href="#training">Training</a><a href="#sources">Sources ↗</a></nav></header>
+<header><a href="index.html" class="brand">d4rt <span>/ illustrated</span></a><nav aria-label="Site"><a href="#tokenizer">Tubelets</a><a href="#encoder">Encoder</a><a href="#model-atlas">Model</a><a href="#training">Training</a><a href="#sources">Sources ↗</a></nav></header>
 <main>
-<div class="intro" id="overview"><p class="eyebrow">D4RT / MODEL ANATOMY · EDITION 08</p><h1>A video, taken apart.<br>A world, put together.</h1><p class="lead">Follow the pixels through a video transformer. Open the encoder, build a point query, then trace the error that trains them both.</p><div class="hero-facts"><span><b>40 layers</b>ViT-g encoder · 1B parameters</span><span><b>8 layers</b>cross-attention decoder · 144M</span><span><b>One shared scene</b>many independent point queries</span></div><p class="small"><a class="source" href="https://arxiv.org/html/2512.08924v2#S4">Reported architecture · §4 ↗</a> · Independent illustrated companion</p></div>
+<div class="intro" id="overview"><p class="eyebrow">D4RT / MODEL ANATOMY · EDITION 09</p><h1>A video, taken apart.<br>A world, put together.</h1><p class="lead">The encoder is a video ViT: tubelets → frame-local attention → global attention. Its scene features feed an independent-query decoder. Follow that complete path, including the losses that teach it geometry.</p><div class="atlas-reading"><a href="#model-atlas">Open the architecture ↓</a><a href="#tokenizer">Inspect a tubelet</a><a href="#training">Follow one training step</a></div><div class="hero-facts"><span><b>40 layers</b>ViT-g encoder · 1B parameters</span><span><b>8 layers</b>cross-attention decoder · 144M</span><span><b>One shared scene</b>many independent point queries</span></div><p class="small"><a class="source" href="https://arxiv.org/html/2512.08924v2#S4">Reported architecture · §4 ↗</a> · Independent illustrated companion</p></div>
+<section id="model-atlas" aria-labelledby="atlas-heading">
+<p class="eyebrow">START HERE / FIGURE 7, OPENED UP</p>
+<h2 id="atlas-heading">Every block.<br>One connected model.</h2>
+<p class="atlas-intro">Select a block to inspect its tensors, learned weights and role in training. The encoder builds context across the observed video; a separate source-pixel path tells the decoder which point to ask about.</p>
+<div class="atlas-shell">
+<div class="atlas-toolbar"><label>Follow the model during <select id="atlas-mode"><option value="train">Training</option><option value="infer">Inference</option></select></label><button id="atlas-next" type="button">Next block →</button></div>
+<div class="atlas-grid">
+<div class="atlas-model" id="atlas-model" role="group" aria-label="Interactive D4RT architecture">
+<button class="atlas-node" type="button" data-atlas="video"><strong>Observed RGB video</strong><small>48 frames · 256 × 256 · RGB</small></button>
+<div class="atlas-arrow" aria-hidden="true">↓</div>
+<button class="atlas-node" type="button" data-atlas="patch"><strong>Tubelet projection + position</strong><small>2 × 16 × 16 pixels → one vector</small></button>
+<div class="atlas-enclosure"><p>ViT-g ENCODER · LOCAL/GLOBAL OPERATIONS INTERLEAVE</p><div class="atlas-pair">
+<button class="atlas-node" type="button" data-atlas="local"><strong>Frame-local self-attention</strong><small>then MLP</small></button>
+<span class="atlas-between" aria-hidden="true">→</span><button class="atlas-node" type="button" data-atlas="global"><strong>Global self-attention</strong><small>then MLP</small></button>
+</div></div>
+<div class="atlas-forks"><div><p>↓ CONTEXT FROM THE VIDEO</p><button class="atlas-node" type="button" data-atlas="scene"><strong>Scene features F</strong><small>continuous feature bank → K,V</small></button></div><div><p>↳ SECOND PATH FROM SOURCE RGB</p><button class="atlas-node" type="button" data-atlas="query"><strong>Point query + 9 × 9 crop</strong><small>(u,v,source,target,camera) → Q</small></button></div></div>
+<div class="atlas-arrow" aria-hidden="true">↓ K,V &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Q ↓</div>
+<button class="atlas-node" type="button" data-atlas="decoder"><strong>8 × cross-attention + MLP</strong><small>each query reads F independently</small></button>
+<div class="atlas-arrow" aria-hidden="true">↓</div>
+<button class="atlas-node" type="button" data-atlas="heads"><strong>Output projections · 13 channels</strong><small>XYZ · UV · visibility · motion · normal · confidence</small></button>
+<div class="atlas-arrow" aria-hidden="true">↓</div>
+<button class="atlas-node" type="button" data-atlas="loss" id="atlas-loss"><strong>Available labels → loss → AdamW</strong><small>labels enter here · gradients return through both branches</small></button>
+</div>
+<div class="atlas-inspector" id="atlas-inspector" tabindex="-1" aria-labelledby="atlas-title"><p class="eyebrow">THE SELECTED BLOCK</p><h3 id="atlas-title"></h3><code id="atlas-shape"></code><p id="atlas-body"></p><pre id="atlas-operation"></pre><dl><dt>Learned parameters</dt><dd id="atlas-weights"></dd><dt>Intermediate activations</dt><dd id="atlas-activation"></dd><dt id="atlas-lifetime-label"></dt><dd id="atlas-lifetime"></dd></dl><div class="atlas-links"><a id="atlas-source" class="source">Paper: this operation ↗</a><a id="atlas-deeper" class="source">Open the detailed experiment ↓</a></div><div class="atlas-detail-nav"><a href="#atlas-model">↑ Back to the model</a><button type="button" id="atlas-next-detail">Next block →</button></div></div>
+</div><p id="atlas-return" class="atlas-return"></p><p id="atlas-status" class="atlas-status" role="status"></p>
+</div>
+<p class="small">Redrawn from <a class="source" href="https://arxiv.org/html/2512.08924v2#A1">Figure 7</a>. The reported encoder is 40 layers, not 40 repetitions of the drawn pair. This map shows information flow; normalization, residual wiring, metadata routing and the complete indexed layer schedule are not reconstructed.</p>
+<div class="atlas-budget"><p class="eyebrow">THE TENSOR SHAPES HAVE A COMPUTE COST</p><h3>Longer video and more questions cost different things.</h3>
+<div class="atlas-budget-controls"><label>Input frames <select id="atlas-frames"><option>16</option><option>32</option><option selected>48</option><option>96</option></select></label><label>Point queries <select id="atlas-queries"><option>1</option><option>256</option><option selected>2048</option><option>65536</option></select></label></div>
+<div id="atlas-counts" class="atlas-counts" aria-live="polite"></div>
+<p id="atlas-budget-note"></p><p>G = temporal groups, S = spatial tokens per group, M = queries. Doubling clip length doubles local attention entries and quadruples global entries. Doubling queries doubles decoder entries while leaving the encoder unchanged. These are logical score counts per head and layer, not FLOPs, allocated memory or measured latency.</p><p id="atlas-genie-cost"></p><p><a class="source" href="https://arxiv.org/html/2402.15391v1#S2">Compare Genie’s spatial → causal temporal → feed-forward block ↗</a> · <a class="source" href="#genie">See the visual comparison below ↓</a></p>
+</div>
+</section>
 <div class="blueprint"><div class="blueprint-title"><span class="eyebrow">THE WHOLE COMPUTATION, BEFORE WE OPEN IT</span><span class="small">Select a stage below</span></div><div class="blueprint-grid"><button type="button" data-jump="0"><span class="glyph film"><i></i><i></i><i></i></span><b>Video</b><small>48 RGB frames</small></button><span class="arrow">→</span><button type="button" data-jump="1"><span class="glyph mosaic"></span><b>Tubelets</b><small>6,144 vectors</small></button><span class="arrow">→</span><button type="button" data-jump="2"><span class="glyph layers"><i></i><i></i><i></i><i></i></span><b>Encoder</b><small>self-attention → F</small></button><span class="arrow">→</span><button type="button" data-jump="4"><span class="glyph query-glyph">Q → K,V</span><b>Decoder</b><small>queries read F</small></button><span class="arrow">→</span><button type="button" data-jump="5"><span class="glyph point-glyph">(x, y, z)</span><b>Point & loss</b><small>error trains both paths</small></button></div><p class="blueprint-return">Training: gradients ← decoder ← shared scene F ← encoder ← patch projection</p></div>
 <section id="tour" aria-labelledby="tour-heading">
 <div class="section-head"><div><p class="eyebrow">ONE CONNECTED COMPUTATION</p><h2 id="tour-heading">Follow the evidence.</h2></div><span class="pill">Illustrations, not D4RT inference</span></div>

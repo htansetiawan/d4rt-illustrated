@@ -4,10 +4,12 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Start with the anatomy
+## Start with the anatomy — edition 09
 
 The homepage now follows a video's lifetime directly. The older, larger workbench remains at [reference.html](https://htansetiawan.github.io/d4rt-illustrated/reference.html); previously published workbench fragment links are forwarded there when needed.
 
+- **Clickable full architecture:** inspect both RGB input paths, frame-local/global encoder operations, the shared feature bank, independent decoder queries and all 13 output channels. Switch training/inference to distinguish learned parameters, activations, cached features and gradient flow.
+- **Attention cost calculator:** change clip length and query count to see local, global and decoder score counts; compare Genie-style factorized routing on the same explicitly hypothetical token lattice.
 - **Connected overview:** video → tubelets → ViT encoder → shared scene features → independent point queries → output and training losses. Six stages include diagrams, tensor shapes, operations and sources.
 - **Pixel-level tokenization:** inspect two actual synthetic RGB crops, all 1,536 scalar addresses, and a computed continuous projection. The final tubelet is token 6,143. Inspector annotations do not enter the pixel data.
 - **Inside the encoder:** a 16-token, width-four computed transformer block exposes normalization, Q/K/V, scores, masks, softmax, value mixing, output projection, residual connections and an MLP. Switch between local/global attention and the separately labeled Genie temporal comparison. Each row is a numerical distribution, not a decorative heatmap.
@@ -27,10 +29,12 @@ Genie means **Genie: Generative Interactive Environments (2024)**. Its ST-transf
 
 ## Files
 
+- `atlas.js`, `atlas.css`: connected architecture inspector and attention shape calculator.
 - `index.html`, `deep-dive.js`, `deep-dive.css`: the anatomy-first homepage, raw-pixel inspector and computed encoder block.
 - `tour.js`, `tour.css`: six-stage walkthrough and differentiable miniature, also used by the earlier `anatomy-tour.html` permalink.
 - `reference.html`: advanced reference experiments and original geometry lab.
 - `workbench.*`, `cutaway.*`, `execution.*`, `anatomy.*`, `microscope.*`, `scene.js`, `app.js`, `style.css`: reference-workbench modules.
+- `tests/check_atlas.py`: every architecture block, training/inference transitions, independent attention-count checks and responsive layouts.
 - `tests/check_deep_dive.py`: pixel addresses/projection, masks, causality, normalization, inspector invariance, keyboard/blueprint navigation, old deep links and responsive layouts.
 - `tests/check_tour.py`: independent finite-difference gradient checks, frozen-encoder invariance, loss updates and tour controls.
 - `tests/check_workbench.py`: retained reference experiments.
