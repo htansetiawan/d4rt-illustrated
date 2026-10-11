@@ -4,7 +4,13 @@ An independent, interactive anatomy of **Efficiently Reconstructing Dynamic Scen
 
 **Live:** https://htansetiawan.github.io/d4rt-illustrated/
 
-## Genie, opened up — edition 16\n\nThe homepage now has a source-linked Genie anatomy alongside D4RT: discrete VQ video codes versus continuous tubelet features, the tokenizer/ST-transformer distinction, Figure 2 training phases, and an interactive spatial/causal temporal token-grid explorer. The Genie code uses paper-reported codebook and model sizes while marking the toy grid as illustrative.\n\n## Trace the tensors — edition 15
+## D4RT and Genie, traced end to end — edition 17
+
+The homepage walks one D4RT clip from 2×16×16 RGB tubelets through continuous patch projection, 40-layer ViT-g local/global attention, independent point-query cross-attention, geometry losses, gradients and inference-time feature reuse. A separate Genie anatomy traces ST-ViViT, VQ codes, latent-action inference and masked future-token training.
+
+The Genie panel now states the reported training scales and objectives, distinguishes the ST-transformer from the similarly named 2018 STTN video-restoration model, and marks the 4×4 attention grid as an explanatory toy. It corrects the total parameter count to 10.7B (often rounded to 11B). These are paper specifications; diagrams do not run either model.
+
+## Trace the tensors — edition 15
 
 The nine-stage homepage now carries an attached tensor notebook: shapes, selected tubelet addresses, softmax axes, and per-head attention score counts. Change the decoder query count (1, 2,048, or 65,536) to see which dimensions grow while the encoded clip stays the same. Training retains the paper's 2,048-query setting and explains how shared features and mean-depth normalization connect query losses.
 
@@ -100,6 +106,8 @@ Tests cover 390, 768 and 1440 pixel widths. Screenshots are written to temporary
 - [D4RT model and training appendix](https://arxiv.org/html/2512.08924v2#A1)
 - [VideoMAE initialization ablation](https://arxiv.org/html/2512.08924v2#A4)
 - [Genie ST-transformer and tokenizer](https://arxiv.org/html/2402.15391v1#S2)
+- [Genie training details and model scale](https://arxiv.org/html/2402.15391v1#S3)
+- [STTN video-restoration paper, distinguished from Genie](https://research.google/pubs/spatio-temporal-transformer-network-for-video-restoration/)
 
 Research checked October 11, 2026. Credit remains with the paper's authors; no author affiliation is implied.
 
@@ -112,3 +120,5 @@ Edition 13 verification: the guided-page suite passes 73 independently enumerate
 Edition 14 verification: seven anatomy components, forward/backward controls, keyboard activation, local lab anchors and layouts pass at 390/768/1440 pixels. The existing pipeline suite also passes all 73 attention-mask checks and its pixel, query and navigation contracts. Desktop/mobile anatomy screenshots reviewed; no browser exceptions or page-level horizontal overflow.
 
 Edition 15 verification: tensor-trace tests pass all nine direct links, three query counts, final tubelet addressing, fixed training-query count and same-fragment navigation at 390/768/1440 pixels. The retained pipeline suite passes 73 connectivity masks and all pixel/navigation checks. No browser exceptions. Desktop and mobile tensor views were visually reviewed.
+
+Edition 17 verification: `tests/check_genie.py` confirms the D4RT/Genie representation distinction, ST-transformer factorization and STTN clarification, reported Genie training scales/objectives, all three interactive phases, and cache-busted assets. Existing browser-based visual checks could not launch Chrome in this restricted environment.
